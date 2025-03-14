@@ -1,0 +1,62 @@
+<div class="container">
+    <div class="header-container">
+        <h1>Chi tiết sản phẩm</h1>
+        <ng-container ngbPopover="Màu, Kích cỡ" popoverTitle="Tùy chọn sản phẩm" triggers="click" [placement]="'bottom'">
+            <!-- Hiển thị chữ tùy chỉnh -->
+            <a class="nav-link" [ngbPopover]="popoverContent" (click)="togglePopover($event)">
+                Tùy chỉnh
+            </a>
+        
+            <!-- Nội dung Popover -->
+            <ng-template #popoverContent>
+                <div class="popover-list">
+                    <a class="popover-item" (click)="handleOptionClick(0)">Màu</a>
+                    <a class="popover-item" (click)="handleOptionClick(1)">Kích cỡ</a>
+                </div>
+            </ng-template>
+        </ng-container>
+        <button *ngIf="canAddImage()" class="btn btn-primary">Thêm ảnh</button>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="product-details">
+                <!-- Icon chỉnh sửa -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4>Thông tin sản phẩm</h4>
+                    <i *ngIf="!isEditing" class="fas fa-edit edit-icon" (click)="toggleEdit()"></i>
+                    <i *ngIf="isEditing" class="fas fa-save save-icon" (click)="saveChanges()"></i>
+                    <i *ngIf="isEditing" class="fas fa-times cancel-icon" (click)="cancelEdit()"></i>
+                </div>
+        
+                <p *ngIf="!isEditing"><strong>ID:</strong> {{ productResponse.id }}</p>
+        
+                <p *ngIf="!isEditing"><strong>Product Name:</strong> {{ productResponse.name }}</p>
+                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.name" class="form-control">
+        
+                <p *ngIf="!isEditing"><strong>Price:</strong> {{ productResponse.price | currency:'VND' }}</p>
+                <input *ngIf="isEditing" type="number" [(ngModel)]="productResponse.price" class="form-control">
+        
+                <p *ngIf="!isEditing"><strong>Description:</strong> {{ productResponse.description }}</p>
+                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.description" class="form-control">
+        
+                <p *ngIf="!isEditing"><strong>Category:</strong> {{ productResponse.category.name }}</p>
+                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.category.name" class="form-control">
+        
+                <p *ngIf="!isEditing"><strong>Color:</strong> {{ productResponse.color.name }}</p>
+                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.color.name" class="form-control">
+        
+                <p *ngIf="!isEditing"><strong>Size:</strong> {{ productResponse.size.name }}</p>
+                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.size.name" class="form-control">
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="image-container">
+                <div *ngFor="let image of product?.product_images" class="image-item">
+                    <img [src]="image.image_url" class="product-image" alt="Product Image">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

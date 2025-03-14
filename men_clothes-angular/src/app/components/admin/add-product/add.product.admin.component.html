@@ -1,0 +1,79 @@
+<form [formGroup]="createProductForm" class="d-flex flex-column">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h2 class="product-header text-center">Thêm sản phẩm mới</h2>
+
+            <!-- Tên sản phẩm -->
+            <div class="mb-3">
+                <label for="name" class="form-label">Tên sản phẩm</label>
+                <input type="text" formControlName="name" class="form-control" id="name"
+                    [class.is-invalid]="createProductForm.get('name')?.invalid && createProductForm.get('name')?.touched">
+                <div *ngIf="createProductForm.get('name')?.invalid && createProductForm.get('name')?.touched"
+                    class="invalid-feedback">
+                    Tên sản phẩm là trường bắt buộc.
+                </div>
+            </div>
+
+            <!-- Giá sản phẩm -->
+            <div class="mb-3">
+                <label for="price" class="form-label">Giá</label>
+                <input type="number" formControlName="price" class="form-control" id="price"
+                    [class.is-invalid]="createProductForm.get('price')?.invalid && createProductForm.get('price')?.touched">
+            </div>
+
+            <!-- Mô tả -->
+            <div class="mb-3">
+                <label for="description" class="form-label">Mô tả</label>
+                <input type="text" class="form-control" formControlName="description" required id="description">
+            </div>
+
+            <!-- Mô tả -->
+            <div class="mb-3">
+                <label for="image" class="form-label">Chọn ảnh</label>
+                <input type="file" class="form-control" (change)="onFileChange($event)" required id="image"  multiple accept="image/*">
+            </div>
+
+            <!-- Nhóm Loại, Màu sắc, Kích cỡ trong cùng một hàng -->
+            <div class="row">
+                <!-- Loại -->
+                <div class="col-md-3">
+                    <label for="category" class="form-label">Loại</label>
+                    <ng-select [items]="categories" bindLabel="name" bindValue="id" 
+                        formControlName="categories" appendTo="body">
+                    </ng-select>
+                </div>
+
+                <!-- Màu sắc -->
+                <div class="col-md-2">
+                    <label for="color" class="form-label">Màu sắc</label>
+                    <ng-select [items]="colors" bindLabel="name" bindValue="id" [multiple]="true"
+                        formControlName="color" appendTo="body">
+                    </ng-select>
+                </div>
+
+                <!-- Kích cỡ -->
+                <div class="col-md-2">
+                    <label for="size" class="form-label">Kích cỡ</label>
+                    <ng-select [items]="sizes" bindLabel="name" bindValue="id" [multiple]="true" formControlName="size"
+                        appendTo="body">
+                    </ng-select>
+                </div>
+
+                <!-- so luong -->
+                <div class="col-md-2">
+                    <label for="quantity" class="form-label">Số lượng</label>
+                    <input type="number" formControlName="quantity" class="form-control" id="quantity">
+                </div>
+                <!-- Nút thêm -->
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="button" (click)="addVariant()" class="btn btn-success w-100">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+<!-- Nút lưu ở giữa -->
+<div class="text-center mt-4">
+    <button type="button" (click)="save()" class="btn btn-primary mt-auto">Lưu</button>
+</div>

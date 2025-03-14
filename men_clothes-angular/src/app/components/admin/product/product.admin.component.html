@@ -1,0 +1,71 @@
+<div class="container-fluid">
+    <div class="header-container">
+        <h1>Quản lý sản phẩm</h1>
+        <ng-container ngbPopover="Thêm sản phẩm, Quản lý màu, kích cỡ" popoverTitle="Tùy chọn sản phẩm" triggers="click" [placement]="'bottom'">
+            <!-- Hiển thị icon thay vì chữ -->
+            <a class="nav-link icon-toggle" [ngbPopover]="popoverContent" (click)="togglePopover($event)">
+                <i class="fas fa-bars"></i> <!-- Icon 3 gạch ngang -->
+            </a>
+        
+            <!-- Nội dung Popover -->
+            <ng-template #popoverContent>
+                <div class="popover-list">
+                    <a class="popover-item" (click)="handleOptionClick(0)">Thêm sản phẩm</a>
+                    <a class="popover-item" (click)="handleOptionClick(1)">Quản lý màu, kích cỡ</a>
+                </div>
+            </ng-template>
+        </ng-container>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Giá</th>
+                <th>Tùy chỉnh</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let product of products">
+                <td> {{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}</td>
+                
+                
+                <td>
+                    <div style="display: flex; gap: 10px;">
+                        <button (click)="viewDetails(product.id)"  class="btn btn-primary" style="white-space: nowrap;">
+                            Chi tiết
+                        </button>
+                        <button (click)="deleteProduct(product.id)" class="btn btn-danger" >Xóa</button>
+                    </div>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item" *ngIf="currentPage > 1">
+                    <a class="page-link" (click)="onPageChange(1)">First</a>
+                </li>
+                <li class="page-item" *ngIf="currentPage > 1">
+                    <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
+                </li>
+                <ng-container *ngFor="let page of visiblePages">
+                    <li class="page-item" [ngClass]="{'active': page === currentPage}">
+                        <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+                    </li>
+                </ng-container>
+                <li class="page-item" *ngIf="currentPage < totalPages">
+                    <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
+                </li>
+                <li class="page-item" *ngIf="currentPage < totalPages">
+                    <a class="page-link" (click)="onPageChange(totalPages)">Last</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

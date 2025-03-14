@@ -1,0 +1,49 @@
+<div class="container-fluid">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>Quản lý danh mục</h1>
+    
+        <!-- Nếu đang thêm danh mục -->
+        <div *ngIf="isAddingCategory" style="display: flex; gap: 10px;">
+            <button class="btn btn-success" (click)="createCategory()">Lưu</button>
+            <button class="btn btn-secondary" (click)="cancelAddCategory()">Hủy</button>
+        </div>
+    
+        <!-- Nếu chưa ở chế độ thêm -->
+        <button *ngIf="!isAddingCategory" class="btn btn-success" (click)="toggleAddCategory()">Thêm</button>
+    </div>
+    
+    <!-- Hiển thị ô nhập khi đang thêm danh mục -->
+    <div *ngIf="isAddingCategory" style="margin-top: 10px;">
+        <input type="text" [(ngModel)]="newCategory.name" class="form-control" placeholder="Nhập tên danh mục mới">
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Tùy chỉnh</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let category of categories">
+                <td>
+                    {{ category.id }}</td>
+                <td>
+                    <input *ngIf="category.editMode" [(ngModel)]="category.name" class="form-control">
+                    <span *ngIf="!category.editMode">{{ category.name }}</span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 10px;">
+                    <button *ngIf="!category.editMode" class="btn btn-primary" (click)="editCategory(category)">Sửa</button>
+                    <button *ngIf="category.editMode" class="btn btn-success" (click)="saveCategory(category.id, category)">Lưu</button>                  
+                    <button class="btn btn-danger" (click)="deleteCategory(category.id)">Xóa</button>
+                    </div>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+    
+
+</div>

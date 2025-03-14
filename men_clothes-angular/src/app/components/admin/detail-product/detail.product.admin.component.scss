@@ -1,0 +1,101 @@
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px; // Khoảng cách giữa header và nội dung bên dưới
+}
+
+.product-details {
+    background: #e3f2fd; // Màu xanh nhạt (light blue)
+    padding: 20px;
+    border-radius: 10px; // Bo góc
+    border: 1px solid #90caf9; // Viền xanh nhạt
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); // Hiệu ứng bóng nhẹ
+
+    p {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #1565c0; // Màu chữ xanh đậm hơn để dễ đọc
+    }
+
+    strong {
+        font-weight: bold;
+        color: #0d47a1; // Màu chữ xanh đậm hơn
+    }
+}
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px; // Khoảng cách giữa các ảnh
+    border-radius: 3px; // Chỉ định bo góc đúng cách
+    border: 1px solid rgb(29, 29, 97); // Thêm viền để nhìn thấy hiệu ứng
+    padding: 5px;
+}
+
+.image-item {
+    flex: 1 1 calc(33.33% - 15px); // Chia đều ảnh thành 3 cột
+    max-width: calc(33.33% - 15px);
+    text-align: center;
+}
+
+.product-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover; // Đảm bảo ảnh không bị méo
+    border-radius: 8px; // Bo góc ảnh
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Tạo hiệu ứng bóng nhẹ
+}
+
+// edit card product
+.form-control {
+    margin-bottom: 10px; // Tạo khoảng cách giữa các input
+}
+.edit-icon,
+.save-icon {
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: color 0.3s;
+}
+
+.edit-icon:hover {
+    color: #007bff;
+}
+
+.save-icon:hover {
+    color: #28a745; // Màu xanh khi hover
+}
+
+.cancel-icon:hover {
+    color: #dc3545; // Màu đỏ khi hover
+}
+
+//popover tuy chinh
+.popover-item {
+    display: block;
+    margin-bottom: 5px;
+    text-decoration: none;
+    color: #333;
+}
+
+.popover-item:hover {
+    background-color: #f0f0f0;
+    color: red;
+    /* Change text color to red on hover */
+}
+
+.nav-link {
+    display: inline-block;
+    padding: 6px 12px; // Khoảng cách bên trong
+    border: 1px solid black; // Viền màu đen
+    border-radius: 5px; // Bo góc
+    text-decoration: none; // Loại bỏ gạch chân mặc định
+    color: black; // Màu chữ
+}
+
+.nav-link:hover {
+    background-color: black; // Khi hover, nền đen
+    color: white; // Khi hover, chữ trắng
+}
