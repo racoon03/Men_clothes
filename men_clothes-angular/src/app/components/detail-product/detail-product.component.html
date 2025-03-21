@@ -39,9 +39,32 @@
                 <h2>{{ product?.name }}</h2>
                 <p>{{ product?.description }}</p>
                 <p>Giá: ${{ product?.price }}</p>
+
+                <!-- Thêm phần chọn màu sắc -->
+                <div class="product-colors" *ngIf="availableColors.length > 0">
+                    <h5>Màu sắc:</h5>
+                    <div class="color-options">
+                        <div *ngFor="let color of availableColors" class="color-item"
+                            [ngClass]="{'selected': color.id === selectedColorId}" (click)="onColorSelect(color.id)">
+                            {{ color.name }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thêm phần chọn kích thước -->
+                <div class="product-sizes" *ngIf="availableSizes.length > 0">
+                    <h5>Kích thước:</h5>
+                    <div class="size-options">
+                        <div *ngFor="let size of availableSizes" class="size-item" [ngClass]="{'selected': size.id === selectedSizeId}"
+                            (click)="onSizeSelect(size.id)">
+                            {{ size.name }}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="product-actions">
-                    <button class="btn btn-primary" (click)="addToCart()">Thêm vào giỏ hàng</button>
-                    <button class="btn btn-success" (click)="buyNow()">Mua ngay</button>
+                    <button class="btn btn-outline-success" (click)="addToCart()">Thêm vào giỏ hàng</button>
+                    <button class="btn btn-outline-info" (click)="buyNow()">Mua ngay</button>
                 </div>
                 <div class="product-quantity">
                     <div class="border-wrapper">

@@ -15,6 +15,7 @@ import { AuthGuardFn } from './guards/auth.guard';
 import { UserProfileComponent } from './components/user-profile/user.profile.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminGuardFn } from './guards/admin.guard';
+import { PaymentCallbackComponent } from './components/payment-callback/payment-callback.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,6 +31,8 @@ const routes: Routes = [
     component: AdminComponent, 
     canActivate:[AdminGuardFn] 
   },
+  // Thêm route mới cho VnPay Return
+  { path: 'payments/payment-callback', component: PaymentCallbackComponent }
 ];
 
 @NgModule({

@@ -51,6 +51,9 @@ public class OrderDTO {
     @JsonProperty("payment_method")
     private String paymentMethod;
 
+    @JsonProperty("vnp_txn_ref")
+    private String vnpTxnRef;
+
     @JsonProperty("cart_items")
     private List<CartItemDTO> cartItems;
 }

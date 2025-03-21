@@ -64,6 +64,9 @@ public class Order {
     @Column(name = "payment_method")
     private String paymentMethod;
 
+    @Column(name = "vnp_txn_ref", nullable = true)
+    private String vnpTxnRef; // Order ID của VNPay trả về
+
     @Column(name = "active")
     private Boolean active;//thuộc về admin
 

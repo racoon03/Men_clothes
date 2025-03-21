@@ -90,6 +90,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (requestMethod.equals("GET") && requestPath.matches(".*/product-variants/\\d+")) {
+            return true;
+        }
+
+        if (requestMethod.equals("GET") && requestPath.matches(".*/product-variants/colors/\\d+")) {
+            return true;
+        }
+
         for (Pair<String, String> bypassToken : bypassTokens) {
             if (requestPath.contains(bypassToken.getFirst())
                     && requestMethod.equals(bypassToken.getSecond())) {

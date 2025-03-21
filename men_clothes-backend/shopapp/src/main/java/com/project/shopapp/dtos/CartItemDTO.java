@@ -13,6 +13,12 @@ public class CartItemDTO {
     @JsonProperty("product_id")
     private Long productId;
 
+    @JsonProperty("color_id")
+    private Long colorId;
+
+    @JsonProperty("size_id")
+    private Long sizeId;
+
     @JsonProperty("quantity")
     private Integer quantity;
 }

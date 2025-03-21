@@ -2,12 +2,10 @@ package com.project.shopapp.services;
 
 import com.project.shopapp.dtos.CartItemDTO;
 import com.project.shopapp.dtos.OrderDTO;
+import com.project.shopapp.dtos.ProductVariantsDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.*;
-import com.project.shopapp.repositories.OrderDetailRepository;
-import com.project.shopapp.repositories.OrderRepository;
-import com.project.shopapp.repositories.ProductRepository;
-import com.project.shopapp.repositories.UserRepository;
+import com.project.shopapp.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -28,6 +26,7 @@ public class OrderService implements IOrderService{
     private final ProductRepository productRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper;
+    private final ProductVariantService productVariantService;
     @Override
     @Transactional
     public Order createOrder(OrderDTO orderDTO) throws Exception {
@@ -64,17 +63,42 @@ public class OrderService implements IOrderService{
 
             // Lấy thông tin sản phẩm từ cartItemDTO
             Long productId = cartItemDTO.getProductId();
+            Long colorId = cartItemDTO.getColorId();
+            Long sizeId = cartItemDTO.getSizeId();
             int quantity = cartItemDTO.getQuantity();
 
             // Tìm thông tin sản phẩm từ cơ sở dữ liệu (hoặc sử dụng cache nếu cần)
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new DataNotFoundException("Product not found with id: " + productId));
 
+            ProductVariant productVariant = productVariantService.getoneById(productId, colorId, sizeId);
+            if (productVariant != null  && productVariant.getQuantity() >= quantity){
+                Long newQuantity = productVariant.getQuantity() - quantity;
+
+                // Tạo DTO để cập nhật
+                ProductVariantsDTO updateDTO = new ProductVariantsDTO();
+                updateDTO.setProductId(productId);
+                updateDTO.setColorId(colorId);
+                updateDTO.setSizeId(sizeId);
+                updateDTO.setQuantity(newQuantity);
+                // Gọi phương thức update để cập nhật số lượng
+                try {
+                    productVariantService.updateProductVariant(productId,
+                            updateDTO);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to update product quantity", e);
+                }
+            } else {
+                // Xử lý trường hợp không đủ số lượng
+                throw new Exception("Insufficient product quantity available");
+            }
+
             // Đặt thông tin cho OrderDetail
             orderDetail.setProduct(product);
             orderDetail.setNumberOfProducts(quantity);
             // Các trường khác của OrderDetail nếu cần
             orderDetail.setPrice(product.getPrice());
+            orderDetail.setTotalMoney(orderDTO.getTotalMoney());
 
             // Thêm OrderDetail vào danh sách
             orderDetails.add(orderDetail);

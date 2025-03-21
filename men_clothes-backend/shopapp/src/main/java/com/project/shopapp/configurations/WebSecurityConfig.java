@@ -92,8 +92,29 @@ public class WebSecurityConfig {
                             .requestMatchers(POST,
                                     String.format("%s/product-variants/batch**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
+                            .requestMatchers(GET,
+                                    String.format("%s/product-variants/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(GET,
+                                    String.format("%s/product-variants/colors/**", apiPrefix)).permitAll()
+
                             .requestMatchers(POST,
                                     String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.USER)
+
+                            .requestMatchers(POST,
+                                    String.format("%s/payment/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(POST,
+                                    String.format("%s/payment/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(POST,
+                                    String.format("%s/payment/create_payment_url", apiPrefix)).permitAll()
+
+                            .requestMatchers(POST,
+                                    String.format("%s/payment/query", apiPrefix)).permitAll()
+
+                            .requestMatchers(POST,
+                                    String.format("%s/payment/refund", apiPrefix)).permitAll()
 
                             .requestMatchers(GET,
                                     String.format("%s/orders/**", apiPrefix)).permitAll()

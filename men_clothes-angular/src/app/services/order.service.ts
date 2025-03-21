@@ -43,4 +43,12 @@ export class OrderService {
     const url = `${environment.apiBaseUrl}/orders/${orderId}`;
     return this.http.delete(url, { responseType: 'text' });
   }
+
+   // Bổ sung hàm cập nhật trạng thái đơn hàng
+  //muốn truyền orderId hoặc id từ vnpay đều được
+  // updateOrderStatus(orderId: number, status: string): Observable<ApiResponse> {
+  //   const url = `${environment.apiBaseUrl}/orders/${orderId}/status`;
+  //   const params = new HttpParams().set('status', status); // Thêm tham số status vào query params
+  //   return this.http.put<ApiResponse>(url, null, { params }); // Gửi yêu cầu PUT với tham số status
+  // }
 }

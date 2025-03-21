@@ -2,6 +2,7 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductVariantsDTO;
+import com.project.shopapp.models.Color;
 import com.project.shopapp.models.Product;
 import com.project.shopapp.models.ProductVariant;
 import com.project.shopapp.services.IProductVariantService;
@@ -10,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -57,6 +55,30 @@ public class ProductVariantController {
             }
             List<ProductVariant> newVariants = productVariantService.createProducts(productVariantsDTOs);
             return ResponseEntity.ok(newVariants);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getProductVariantById(
+            @PathVariable Long productId
+    ) {
+        try {
+            List<ProductVariant> productVariants = productVariantService.getProductVariantById(productId);
+            return ResponseEntity.ok(productVariants);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/colors/{productId}")
+    public ResponseEntity<?> getColorsByProductId(
+            @PathVariable Long productId
+    ) {
+        try {
+            List<Color> colors = productVariantService.getColorsByProductId(productId);
+            return ResponseEntity.ok(colors);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

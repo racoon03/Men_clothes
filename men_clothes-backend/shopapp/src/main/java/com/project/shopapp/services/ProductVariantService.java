@@ -1,11 +1,9 @@
 package com.project.shopapp.services;
 
+import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductVariantsDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
-import com.project.shopapp.models.Color;
-import com.project.shopapp.models.Product;
-import com.project.shopapp.models.ProductVariant;
-import com.project.shopapp.models.Size;
+import com.project.shopapp.models.*;
 import com.project.shopapp.repositories.ColorRepository;
 import com.project.shopapp.repositories.ProductRepository;
 import com.project.shopapp.repositories.ProductVariantRepository;
@@ -79,6 +77,62 @@ public class ProductVariantService implements IProductVariantService {
         }
 
         return savedVariants;
+    }
+
+    @Override
+    public List<Color> getColorsByProductId(Long productId) {
+        List<Long> colorIds = productVariantRepository.findColorsByProductId(productId);
+        return colorRepository.findByIdIn(colorIds);
+    }
+
+    @Override
+    public List<ProductVariant> getProductVariantById(Long productId) {
+        List<ProductVariant> productVariants = productVariantRepository.findProductVariantById(productId);
+        return productVariants;
+    }
+
+    @Override
+    public ProductVariant getoneById(long productId, long colorId, long sizeId) throws Exception {
+        return productVariantRepository.findByProductIdAndColorIdAndSizeId(productId, colorId, sizeId).
+                orElseThrow(()-> new DataNotFoundException(
+                        "Cannot find product variant with productId=" + productId +
+                                ", colorId=" + colorId +
+                                ", sizeId=" + sizeId));
+    }
+
+
+    @Override
+    @Transactional
+    public ProductVariant updateProductVariant(
+            long id,
+            ProductVariantsDTO productVariantsDTO
+    )
+            throws Exception {
+        ProductVariant existingProductVariant = getoneById(id, productVariantsDTO.getColorId(),
+                productVariantsDTO.getSizeId());
+        Color color = colorRepository
+                .findById(productVariantsDTO.getColorId())
+                .orElseThrow(() ->
+                        new DataNotFoundException(
+                                "Cannot find category with id: "+productVariantsDTO.getColorId()));
+
+        Size size = sizeRepository
+                .findById(productVariantsDTO.getSizeId())
+                .orElseThrow(() ->
+                        new DataNotFoundException(
+                                "Cannot find category with id: "+productVariantsDTO.getSizeId()));
+
+        if(existingProductVariant != null) {
+
+            // Cập nhật các thuộc tính
+            existingProductVariant.setColor(color);
+            existingProductVariant.setSize(size);
+            existingProductVariant.setQuantity(productVariantsDTO.getQuantity());
+
+            return productVariantRepository.save(existingProductVariant);
+        }
+        return null;
+
     }
 
 }

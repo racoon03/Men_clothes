@@ -31,6 +31,9 @@ export class OrderDTO {
 
   coupon_code: string;
 
+  vnp_txn_ref?: string; // Thêm trường này để lưu mã tham chiếu VNPay
+
+
   cart_items: CartItemDTO[]; // Thêm cart_items để lưu thông tin giỏ hàng
 
 

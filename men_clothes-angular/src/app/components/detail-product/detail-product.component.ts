@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { Product } from '../../models/product';
 import { ProductImage } from 'src/app/models/product.image';
 import { environment } from '../../enviroments/enviroment';
+import { ProductVariantService } from 'src/app/services/product.variant.service';
 @Component({
   selector: 'app-detail-product',
   templateUrl: './detail-product.component.html',
@@ -18,22 +19,25 @@ export class DetailProductComponent implements OnInit {
   productId: number = 0;
   currentImageIndex: number = 0;
   quantity: number = 1;
+  productVariants: any[] = []; // biến này để lưu trữ các biến thể sản phẩm
+  selectedColorId: number = 0; // Để theo dõi màu sắc được chọn
+  selectedSizeId: number = 0; // Để theo dõi kích thước được chọn
+  availableColors: any[] = []; // Các màu sắc có sẵn cho sản phẩm
+  availableSizes: any[] = []; // Các kích thước có sẵn cho sản phẩm
+
   constructor(
     private productService: ProductService,
     private cartService: CartService,
     // private categoryService: CategoryService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
+    private productVariantService: ProductVariantService,
     ) {
       
     }
     ngOnInit() {
-      // Lấy productId từ URL      
-      //const idParam = this.activatedRoute.snapshot.paramMap.get('id');
       const idParam = this.activatedRoute.snapshot.paramMap.get('id');
       debugger
-      //this.cartService.clearCart();
-      // const idParam = 5 //fake tạm 1 giá trị
       if (idParam !== null) {
         this.productId = +idParam;
       }
@@ -51,6 +55,9 @@ export class DetailProductComponent implements OnInit {
             this.product = response 
             // Bắt đầu với ảnh đầu tiên
             this.showImage(0);
+
+            // Gọi API lấy thông tin biến thể sản phẩm sau khi đã lấy thông tin sản phẩm
+            this.loadProductVariants();
           },
           complete: () => {
             debugger;
@@ -62,8 +69,66 @@ export class DetailProductComponent implements OnInit {
         });    
       } else {
         console.error('Invalid productId:', idParam);
-      }      
+      }  
     }
+  
+  // Thêm hàm mới để tải biến thể sản phẩm
+  loadProductVariants(): void {
+    if (this.productId) {
+      this.productVariantService.getProductVariants(this.productId).subscribe({
+        next: (variants: any[]) => {
+          this.productVariants = variants;
+            
+          // Trích xuất danh sách màu sắc và kích thước có sẵn
+          this.extractAvailableOptions();
+        },
+        error: (error) => {
+          console.error('Error loading product variants:', error);
+        }
+      });
+    }
+  }
+  
+    // Hàm để trích xuất các tùy chọn có sẵn (màu sắc, kích thước)
+      extractAvailableOptions(): void {
+        // Lọc ra các màu sắc duy nhất
+        const colorMap = new Map();
+        this.productVariants.forEach(variant => {
+          if (variant.color && !colorMap.has(variant.color.id)) {
+            colorMap.set(variant.color.id, variant.color);
+          }
+        });
+        this.availableColors = Array.from(colorMap.values());
+        
+        // Lọc ra các kích thước duy nhất
+        const sizeMap = new Map();
+        this.productVariants.forEach(variant => {
+          if (variant.size && !sizeMap.has(variant.size.id)) {
+            sizeMap.set(variant.size.id, variant.size);
+          }
+        });
+        this.availableSizes = Array.from(sizeMap.values());
+        
+        // Mặc định chọn giá trị đầu tiên nếu có
+        if (this.availableColors.length > 0) {
+          this.selectedColorId = this.availableColors[0].id;
+        }
+        
+        if (this.availableSizes.length > 0) {
+          this.selectedSizeId = this.availableSizes[0].id;
+        }
+      }
+
+      // Hàm xử lý khi người dùng chọn màu
+      onColorSelect(colorId: number): void {
+        this.selectedColorId = colorId;
+      }
+
+      // Hàm xử lý khi người dùng chọn kích thước
+      onSizeSelect(sizeId: number): void {
+        this.selectedSizeId = sizeId;
+      }
+  
     showImage(index: number): void {
       debugger
       if (this.product && this.product.product_images && 
@@ -95,7 +160,8 @@ export class DetailProductComponent implements OnInit {
     addToCart(): void {
       debugger
       if (this.product) {
-        this.cartService.addToCart(this.product.id, this.quantity);
+        this.cartService.addToCart(this.product.id, this.selectedColorId, this.selectedSizeId, this.quantity);
+        alert('Đã thêm sản phẩm vào giỏ hàng.');
       } else {
         // Xử lý khi product là null
         console.error('Không thể thêm sản phẩm vào giỏ hàng vì product là null.');

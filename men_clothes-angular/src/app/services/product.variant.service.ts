@@ -19,13 +19,18 @@ export class ProductVariantService {
     }
 
     // Phương thức tạo nhiều biến thể cùng lúc
-createProductVariants(productDataArray: CreateProductVariantDTO[], token: string): Observable<any> {
-    const url = `${environment.apiBaseUrl}/product-variants/batch`;
-    return this.http.post(url, productDataArray, {
-        headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        })
-    });
-}
+  createProductVariants(productDataArray: CreateProductVariantDTO[], token: string): Observable<any> {
+      const url = `${environment.apiBaseUrl}/product-variants/batch`;
+      return this.http.post(url, productDataArray, {
+          headers: new HttpHeaders({
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+          })
+      });
+  }
+
+   getProductVariants(productId: number): Observable<any> {
+        const url = `${environment.apiBaseUrl}/product-variants/${productId}`;
+        return this.http.get(url);
+    }
 }
