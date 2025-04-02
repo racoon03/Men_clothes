@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <!-- Nền trong suốt -->
+  <rect width="240" height="240" fill="none"/>
+  
+  <!-- Đường kẻ dưới -->
+  <path d="M40,190 L80,190" stroke="#3a3e45" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <path d="M160,190 L200,190" stroke="#3a3e45" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <line x1="80" y1="190" x2="160" y2="190" stroke="#3a3e45" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Điểm trang trí -->
+  <circle cx="180" cy="60" r="6" fill="#c0c4cc" stroke="none"/>
+  <circle cx="150" cy="150" r="4" fill="#3a3e45" stroke="none"/>
+  <circle cx="60" cy="150" r="4" fill="#3a3e45" stroke="none"/>
+  <circle cx="40" cy="100" r="3" fill="#3a3e45" stroke="none"/>
+  
+  <!-- Áo hoodie -->
+  <path d="M65,80 L90,60 L150,60 L175,80 L175,170 L65,170 Z" fill="#8c92a3" stroke="#3a3e45" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Hood -->
+  <path d="M90,60 C90,40 150,40 150,60" fill="#a3a8b8" stroke="#3a3e45" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Túi đơn giữa -->
+  <path d="M90,110 L150,110 L150,140 L90,140 Z" fill="#a3a8b8" stroke="#3a3e45" stroke-width="3" stroke-linejoin="round"/>
+  
+  <!-- Dây mũ -->
+  <path d="M100,80 L95,100" stroke="#3a3e45" stroke-width="3" stroke-linecap="round"/>
+  <path d="M140,80 L145,100" stroke="#3a3e45" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="95" cy="105" r="4" fill="#c0c4cc" stroke="#3a3e45" stroke-width="1"/>
+  <circle cx="145" cy="105" r="4" fill="#c0c4cc" stroke="#3a3e45" stroke-width="1"/>
+</svg>

@@ -1,5 +1,6 @@
 package com.project.shopapp.repositories;
 
+
 import com.project.shopapp.models.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "OR o.note LIKE %:keyword% " +
             "OR o.email LIKE %:keyword%)")
     Page<Order> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    // Tự động sắp xếp giảm dần theo orderDate
+    List<Order> findByUserIdOrderByOrderDateDesc(Long userId);
+
+    // tim theo user co phan trang theo ngay moi nhat
+    Page<Order> findByUserIdOrderByOrderDateDesc(Long userId, Pageable pageable);
 }

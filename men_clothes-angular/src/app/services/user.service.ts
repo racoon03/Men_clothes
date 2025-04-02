@@ -96,4 +96,44 @@ export class UserService {
       // Handle the error as needed
     }
   }
+
+  /**
+   * Kiểm tra người dùng đã đăng nhập chưa
+   */
+  isUserLoggedIn(): boolean {
+    const user = this.getUserResponseFromLocalStorage();
+    return user !== null;
+  }
+  
+  /**
+   * Lấy tên người dùng
+   */
+  getUserName(): string {
+    const user = this.getUserResponseFromLocalStorage();
+    return user?.fullname || 'Khách';
+  }
+  
+  /**
+   * Lấy ID người dùng
+   */
+  getUserId(): number {
+    const user = this.getUserResponseFromLocalStorage();
+    return user?.id || 0;
+  }
+  
+  /**
+   * Cập nhật đầy đủ thông tin người dùng vào form
+   */
+  fillUserInfoToForm(formGroup: any): void {
+    const user = this.getUserResponseFromLocalStorage();
+    
+    if (user) {
+      formGroup.patchValue({
+        fullname: user.fullname || '',
+        phone_number: user.phone_number || '',
+        address: user.address || '',
+        email: user.email || ''
+      });
+    }
+  }
 }

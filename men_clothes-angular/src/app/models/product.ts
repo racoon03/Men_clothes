@@ -8,6 +8,17 @@ export interface Product {
     category_id: number;
     url: string; 
     product_images: ProductImage[];
+
+     // Thuộc tính UI bổ sung
+    discount?: number;           // Phần trăm giảm giá
+    originalPrice?: number;      // Giá gốc trước khi giảm
+    hasGift?: boolean;           // Có quà tặng kèm theo
+    rating?: number;             // Đánh giá sao (1-5)
+    ratingCount?: number;        // Số lượng đánh giá
+    colors?: string[];           // Các màu sắc có sẵn
+    categoryName?: string;       // Tên danh mục
+
+
   }
 
   

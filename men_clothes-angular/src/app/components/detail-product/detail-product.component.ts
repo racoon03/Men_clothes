@@ -9,6 +9,8 @@ import { Product } from '../../models/product';
 import { ProductImage } from 'src/app/models/product.image';
 import { environment } from '../../enviroments/enviroment';
 import { ProductVariantService } from 'src/app/services/product.variant.service';
+import { COLOR_MAPPING } from '../color/color.mapping';
+
 @Component({
   selector: 'app-detail-product',
   templateUrl: './detail-product.component.html',
@@ -19,166 +21,214 @@ export class DetailProductComponent implements OnInit {
   productId: number = 0;
   currentImageIndex: number = 0;
   quantity: number = 1;
-  productVariants: any[] = []; // biến này để lưu trữ các biến thể sản phẩm
-  selectedColorId: number = 0; // Để theo dõi màu sắc được chọn
-  selectedSizeId: number = 0; // Để theo dõi kích thước được chọn
-  availableColors: any[] = []; // Các màu sắc có sẵn cho sản phẩm
-  availableSizes: any[] = []; // Các kích thước có sẵn cho sản phẩm
+  productVariants: any[] = [];
+  selectedColorId: number = 0;
+  selectedSizeId: number = 0;
+  availableColors: any[] = [];
+  availableSizes: any[] = [];
+  isLoading: boolean = true;
+  
+  // Biến để lưu các kích thước có sẵn theo màu
+  availableSizesByColor: Map<number, number[]> = new Map();
 
   constructor(
     private productService: ProductService,
     private cartService: CartService,
-    // private categoryService: CategoryService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private productVariantService: ProductVariantService,
-    ) {
-      
-    }
-    ngOnInit() {
-      const idParam = this.activatedRoute.snapshot.paramMap.get('id');
-      debugger
-      if (idParam !== null) {
-        this.productId = +idParam;
-      }
-      if (!isNaN(this.productId)) {
-        this.productService.getDetailProduct(this.productId).subscribe({
-          next: (response: any) => {            
-            // Lấy danh sách ảnh sản phẩm và thay đổi URL
-            debugger
-            if (response.product_images && response.product_images.length > 0) {
-              response.product_images.forEach((product_image:ProductImage) => {
-                product_image.image_url = `${environment.apiBaseUrl}/products/images/${product_image.image_url}`;
-              });
-            }            
-            debugger
-            this.product = response 
-            // Bắt đầu với ảnh đầu tiên
-            this.showImage(0);
+  ) {}
 
-            // Gọi API lấy thông tin biến thể sản phẩm sau khi đã lấy thông tin sản phẩm
-            this.loadProductVariants();
-          },
-          complete: () => {
-            debugger;
-          },
-          error: (error: any) => {
-            debugger;
-            console.error('Error fetching detail:', error);
-          }
-        });    
-      } else {
-        console.error('Invalid productId:', idParam);
-      }  
+  ngOnInit() {
+    // Lấy ID sản phẩm từ URL
+    const idParam = this.activatedRoute.snapshot.paramMap.get('id');
+    
+    if (idParam !== null) {
+      this.productId = +idParam;
+      this.loadProductDetails();
+    } else {
+      console.error('Không tìm thấy ID sản phẩm trong URL');
+      this.router.navigate(['/products']);
     }
+  }
+
+  // Tải thông tin chi tiết sản phẩm
+  loadProductDetails(): void {
+    this.isLoading = true;
+    
+    if (!isNaN(this.productId)) {
+      this.productService.getDetailProduct(this.productId).subscribe({
+        next: (response: any) => {
+          // Xử lý ảnh sản phẩm
+          if (response.product_images && response.product_images.length > 0) {
+            response.product_images.forEach((product_image: ProductImage) => {
+              product_image.image_url = `${environment.apiBaseUrl}/products/images/${product_image.image_url}`;
+            });
+          }
+          
+          this.product = response;
+          this.showImage(0);
+          
+          // Tải thông tin biến thể sản phẩm
+          this.loadProductVariants();
+        },
+        error: (error: any) => {
+          console.error('Lỗi khi tải thông tin sản phẩm:', error);
+          this.isLoading = false;
+        }
+      });
+    } else {
+      console.error('ID sản phẩm không hợp lệ');
+      this.isLoading = false;
+      this.router.navigate(['/products']);
+    }
+  }
   
-  // Thêm hàm mới để tải biến thể sản phẩm
+  // Tải các biến thể của sản phẩm (màu sắc, kích thước)
   loadProductVariants(): void {
     if (this.productId) {
       this.productVariantService.getProductVariants(this.productId).subscribe({
         next: (variants: any[]) => {
           this.productVariants = variants;
-            
-          // Trích xuất danh sách màu sắc và kích thước có sẵn
           this.extractAvailableOptions();
+          this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error loading product variants:', error);
+          console.error('Lỗi khi tải biến thể sản phẩm:', error);
+          this.isLoading = false;
         }
       });
     }
   }
   
-    // Hàm để trích xuất các tùy chọn có sẵn (màu sắc, kích thước)
-      extractAvailableOptions(): void {
-        // Lọc ra các màu sắc duy nhất
-        const colorMap = new Map();
-        this.productVariants.forEach(variant => {
-          if (variant.color && !colorMap.has(variant.color.id)) {
-            colorMap.set(variant.color.id, variant.color);
-          }
-        });
-        this.availableColors = Array.from(colorMap.values());
-        
-        // Lọc ra các kích thước duy nhất
-        const sizeMap = new Map();
-        this.productVariants.forEach(variant => {
-          if (variant.size && !sizeMap.has(variant.size.id)) {
-            sizeMap.set(variant.size.id, variant.size);
-          }
-        });
-        this.availableSizes = Array.from(sizeMap.values());
-        
-        // Mặc định chọn giá trị đầu tiên nếu có
-        if (this.availableColors.length > 0) {
-          this.selectedColorId = this.availableColors[0].id;
-        }
-        
-        if (this.availableSizes.length > 0) {
-          this.selectedSizeId = this.availableSizes[0].id;
-        }
+  // Trích xuất các tùy chọn có sẵn (màu sắc, kích thước)
+  extractAvailableOptions(): void {
+    // Lọc ra các màu sắc duy nhất
+    const colorMap = new Map();
+    this.productVariants.forEach(variant => {
+      if (variant.color && !colorMap.has(variant.color.id)) {
+        colorMap.set(variant.color.id, variant.color);
       }
-
-      // Hàm xử lý khi người dùng chọn màu
-      onColorSelect(colorId: number): void {
-        this.selectedColorId = colorId;
+    });
+    this.availableColors = Array.from(colorMap.values());
+    
+    // Lọc ra các kích thước duy nhất
+    const sizeMap = new Map();
+    this.productVariants.forEach(variant => {
+      if (variant.size && !sizeMap.has(variant.size.id)) {
+        sizeMap.set(variant.size.id, variant.size);
       }
-
-      // Hàm xử lý khi người dùng chọn kích thước
-      onSizeSelect(sizeId: number): void {
-        this.selectedSizeId = sizeId;
+    });
+    this.availableSizes = Array.from(sizeMap.values());
+    
+    // Tạo bản đồ kích thước theo màu
+    this.availableSizesByColor = new Map();
+    this.productVariants.forEach(variant => {
+      if (!this.availableSizesByColor.has(variant.color.id)) {
+        this.availableSizesByColor.set(variant.color.id, []);
       }
-  
-    showImage(index: number): void {
-      debugger
-      if (this.product && this.product.product_images && 
-          this.product.product_images.length > 0) {
-        // Đảm bảo index nằm trong khoảng hợp lệ        
-        if (index < 0) {
-          index = 0;
-        } else if (index >= this.product.product_images.length) {
-          index = this.product.product_images.length - 1;
-        }        
-        // Gán index hiện tại và cập nhật ảnh hiển thị
-        this.currentImageIndex = index;
-      }
-    }
-    thumbnailClick(index: number) {
-      debugger
-      // Gọi khi một thumbnail được bấm
-      this.currentImageIndex = index; // Cập nhật currentImageIndex
-    }  
-    nextImage(): void {
-      debugger
-      this.showImage(this.currentImageIndex + 1);
-    }
-  
-    previousImage(): void {
-      debugger
-      this.showImage(this.currentImageIndex - 1);
-    }      
-    addToCart(): void {
-      debugger
-      if (this.product) {
-        this.cartService.addToCart(this.product.id, this.selectedColorId, this.selectedSizeId, this.quantity);
-        alert('Đã thêm sản phẩm vào giỏ hàng.');
-      } else {
-        // Xử lý khi product là null
-        console.error('Không thể thêm sản phẩm vào giỏ hàng vì product là null.');
-      }
-    }    
-        
-    increaseQuantity(): void {
-      this.quantity++;
+      this.availableSizesByColor.get(variant.color.id)?.push(variant.size.id);
+    });
+    
+    // Mặc định chọn giá trị đầu tiên nếu có
+    if (this.availableColors.length > 0) {
+      this.selectedColorId = this.availableColors[0].id;
     }
     
-    decreaseQuantity(): void {
-      if (this.quantity > 1) {
-        this.quantity--;
-      }
-    }
+    // Chọn kích thước đầu tiên có sẵn cho màu đã chọn
+    this.updateAvailableSizes();
+  }
+
+  // Hàm xử lý khi người dùng chọn màu
+  onColorSelect(colorId: number): void {
+    this.selectedColorId = colorId;
+    this.updateAvailableSizes();
+  }
+
+    // Phương thức để lấy mã màu dựa trên ID
+  getColorCode(colorId: number): string {
+    return COLOR_MAPPING[colorId] || '#000000';
+  }
+  
+  // Cập nhật kích thước có sẵn dựa trên màu đã chọn
+  updateAvailableSizes(): void {
+    // Lấy danh sách ID kích thước có sẵn cho màu đã chọn
+    const availableSizeIds = this.availableSizesByColor.get(this.selectedColorId) || [];
     
-    buyNow(): void {
-      this.router.navigate(['/orders']);
-    } 
+    // Kiểm tra xem kích thước đã chọn có còn khả dụng không
+    if (!availableSizeIds.includes(this.selectedSizeId) && availableSizeIds.length > 0) {
+      this.selectedSizeId = availableSizeIds[0];
+    }
+  }
+  
+  // Kiểm tra xem kích thước có khả dụng cho màu đã chọn không
+  isSizeAvailable(sizeId: number): boolean {
+    const availableSizeIds = this.availableSizesByColor.get(this.selectedColorId) || [];
+    return availableSizeIds.includes(sizeId);
+  }
+
+  // Xử lý khi người dùng chọn kích thước
+  onSizeSelect(sizeId: number): void {
+    this.selectedSizeId = sizeId;
+  }
+
+  // Hiển thị ảnh theo index
+  showImage(index: number): void {
+    if (this.product && this.product.product_images && 
+        this.product.product_images.length > 0) {
+      // Đảm bảo index nằm trong khoảng hợp lệ        
+      if (index < 0) {
+        index = 0;
+      } else if (index >= this.product.product_images.length) {
+        index = this.product.product_images.length - 1;
+      }        
+      // Gán index hiện tại
+      this.currentImageIndex = index;
+    }
+  }
+  
+  // Xử lý khi click vào thumbnail
+  thumbnailClick(index: number) {
+    this.currentImageIndex = index;
+  }  
+  
+  // Chuyển đến ảnh tiếp theo
+  nextImage(): void {
+    this.showImage(this.currentImageIndex + 1);
+  }
+
+  // Quay lại ảnh trước
+  previousImage(): void {
+    this.showImage(this.currentImageIndex - 1);
+  }
+  
+  // Thêm sản phẩm vào giỏ hàng
+  addToCart(): void {
+    if (this.product) {
+      this.cartService.addToCart(this.product.id, this.selectedColorId, this.selectedSizeId, this.quantity);
+      alert('Đã thêm sản phẩm vào giỏ hàng.');
+    } else {
+      console.error('Không thể thêm sản phẩm vào giỏ hàng vì product là null.');
+    }
+  }    
+      
+  // Tăng số lượng sản phẩm
+  increaseQuantity(): void {
+    this.quantity++;
+  }
+  
+  // Giảm số lượng sản phẩm
+  decreaseQuantity(): void {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
+  
+  // Chuyển hướng đến trang đặt hàng
+  buyNow(): void {
+    if (this.product) {
+      this.cartService.addToCart(this.product.id, this.selectedColorId, this.selectedSizeId, this.quantity);
+      this.router.navigate(['/checkout']);
+    }
+  }
 }

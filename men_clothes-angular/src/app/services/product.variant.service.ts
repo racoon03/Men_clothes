@@ -29,8 +29,13 @@ export class ProductVariantService {
       });
   }
 
-   getProductVariants(productId: number): Observable<any> {
-        const url = `${environment.apiBaseUrl}/product-variants/${productId}`;
-        return this.http.get(url);
-    }
+  getProductVariants(productId: number): Observable<any> {
+      const url = `${environment.apiBaseUrl}/product-variants/${productId}`;
+      return this.http.get(url);
+  }
+
+  getColorsProductVariants(productId: number): Observable<any> {
+      const url = `${environment.apiBaseUrl}/product-variants/colors/${productId}`;
+      return this.http.get(url);
+  }
 }

@@ -5,6 +5,7 @@ import com.project.shopapp.dtos.*;
 import com.project.shopapp.models.Order;
 import com.project.shopapp.responses.OrderListResponse;
 import com.project.shopapp.responses.OrderResponse;
+import com.project.shopapp.responses.ResponseObject;
 import com.project.shopapp.services.IOrderService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -12,12 +13,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/orders")
@@ -52,6 +57,28 @@ public class OrderController {
         try {
             List<Order> orders = orderService.findByUserId(userId);
             return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Thêm endpoint mới hỗ trợ phân trang
+    @GetMapping("/user/{user_id}/paged")
+    public ResponseEntity<?> getPagedOrders(
+            @Valid @PathVariable("user_id") Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "orderDate"));
+            Page<Order> orderPage = orderService.findByUserIdWithPagination(userId, pageRequest);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("orders", orderPage.getContent());
+            response.put("currentPage", orderPage.getNumber());
+            response.put("totalItems", orderPage.getTotalElements());
+            response.put("totalPages", orderPage.getTotalPages());
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -113,5 +140,22 @@ public class OrderController {
                 .orders(orderResponses)
                 .totalPages(totalPages)
                 .build());
+    }
+
+    // cancel don hang
+    @PutMapping("/status/{id}")
+    public ResponseEntity<?> updateOrderStatus(
+            @Valid @PathVariable Long id,
+            @Valid @RequestBody OrderStatusDTO statusDTO) {
+        try {
+            orderService.updateOrderStatus(id, statusDTO.getStatus());
+            return ResponseEntity.ok().body(
+                    new ResponseObject("Update order status successfully", HttpStatus.OK, null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    new ResponseObject(e.getMessage(), HttpStatus.BAD_REQUEST, null)
+            );
+        }
     }
 }

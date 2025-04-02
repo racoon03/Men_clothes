@@ -11,4 +11,7 @@ public interface ICategoryService {
     List<Category> getAllCategories();
     Category updateCategory(long categoryId, CategoryDTO category);
     void deleteCategory(long id);
-}
+
+    Long countCategories() ;
+
+    }

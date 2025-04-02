@@ -1,0 +1,182 @@
+@import '../../shared/variables.scss';
+
+.order-timeline-container {
+    background-color: $white-color;
+    border-radius: $border-radius;
+    box-shadow: $card-shadow;
+    padding: $spacing-md;
+    margin-bottom: $spacing-md;
+    position: relative;
+    z-index: 10;
+
+    .order-id {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: $spacing-md;
+        padding-bottom: $spacing-sm;
+        border-bottom: 1px solid $light-gray;
+
+        .back-btn {
+            color: $gray-color;
+            text-decoration: none;
+            font-size: $font-size-small;
+            display: flex;
+            align-items: center;
+
+            i {
+                margin-right: $spacing-xs;
+            }
+
+            &:hover {
+                color: $accent-color;
+            }
+        }
+
+        .order-number {
+            font-weight: 600;
+            color: $primary-color;
+        }
+
+        .delivery-status {
+            color: $accent-color;
+            font-weight: 600;
+            background-color: rgba($accent-color, 0.1);
+            padding: $spacing-xs $spacing-sm;
+            border-radius: 20px;
+            font-size: $font-size-small;
+        }
+    }
+
+    .timeline-wrapper {
+        overflow-x: auto;
+        padding: $spacing-sm 0;
+    }
+
+    .timeline-steps {
+        display: flex;
+        justify-content: space-between;
+        min-width: 650px; // Giảm chiều rộng tối thiểu
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+
+            &:first-child {
+                align-items: flex-start;
+
+                .timeline-icon {
+                    margin-left: 0;
+                }
+            }
+
+            &:last-child {
+                align-items: flex-end;
+
+                .timeline-icon {
+                    margin-right: 0;
+                }
+            }
+
+            .timeline-icon {
+                width: 40px; // Giảm kích thước icon
+                height: 40px; // Giảm kích thước icon
+                border-radius: 50%;
+                background-color: $white-color;
+                border: 2px solid $light-gray;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: $font-size-small;
+                color: $gray-color;
+                position: relative;
+                z-index: 2;
+            }
+
+            .timeline-connector {
+                position: absolute;
+                top: 20px; // Nửa chiều cao của icon
+                left: 50%;
+                width: calc(100% - 20px);
+                height: 2px;
+                background-color: $light-gray;
+                z-index: 1;
+            }
+
+            .timeline-content {
+                margin-top: $spacing-sm;
+                text-align: center;
+                width: 100%;
+
+                .timeline-title {
+                    font-size: 12px; // Giảm font size
+                    font-weight: 600;
+                    color: $gray-color;
+                    margin-bottom: 2px; // Giảm margin
+                }
+
+                .timeline-date {
+                    font-size: 11px; // Giảm font size
+                    color: $gray-color;
+                    margin: 0;
+                }
+            }
+
+            // Active state
+            &.active {
+                .timeline-icon {
+                    border-color: $accent-color;
+                    background-color: $accent-color;
+                    color: $white-color;
+                }
+
+                .timeline-title {
+                    color: $accent-color;
+                    font-weight: 700;
+                }
+            }
+
+            // Completed state
+            &.completed {
+                .timeline-icon {
+                    border-color: #4CAF50;
+                    background-color: #4CAF50;
+                    color: $white-color;
+                }
+
+                .timeline-connector {
+                    background-color: #4CAF50;
+                }
+
+                .timeline-title {
+                    color: #4CAF50;
+                }
+            }
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .order-timeline-container {
+        .order-id {
+            flex-direction: column;
+            align-items: flex-start;
+
+            .back-btn {
+                margin-bottom: $spacing-sm;
+            }
+
+            .order-number {
+                margin-bottom: $spacing-sm;
+            }
+        }
+
+        .timeline-wrapper {
+            overflow-x: scroll;
+        }
+    }
+}

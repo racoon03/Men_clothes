@@ -9,7 +9,9 @@ import com.project.shopapp.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -146,11 +148,34 @@ public class OrderService implements IOrderService{
 
     @Override
     public List<Order> findByUserId(Long userId) {
-        return orderRepository.findByUserId(userId);
+        return orderRepository.findByUserIdOrderByOrderDateDesc(userId);
     }
 
     @Override
     public Page<Order> getOrdersByKeyword(String keyword, Pageable pageable) {
         return orderRepository.findByKeyword(keyword, pageable);
     }
+
+    // phan trang theo user sap xep theo ngay
+    @Override
+    public Page<Order> findByUserIdWithPagination(Long userId, Pageable pageable) {
+        return orderRepository.findByUserIdOrderByOrderDateDesc(userId, pageable);
+    }
+
+    // cancel don hang
+    @Override
+    @Transactional
+    public void updateOrderStatus(Long id, String status) throws DataNotFoundException {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
+
+        // Validation nếu cần
+        if (!OrderStatus.PENDING.equals(order.getStatus()) && OrderStatus.CANCELLED.equals(status)) {
+            throw new DataNotFoundException("Can only cancel orders in PENDING status");
+        }
+
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+
 }

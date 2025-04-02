@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500">
+  <!-- Background -->
+  <rect width="1200" height="500" fill="#f1f1f1"/>
+  
+  <!-- Left section - Varsity Jacket -->
+  <g>
+    <!-- Background for varsity section -->
+    <rect x="0" y="0" width="600" height="500" fill="#e9e9e9"/>
+    
+    <!-- Text elements -->
+    <text x="60" y="100" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#000">ÁO VARSITY</text>
+    <text x="60" y="150" font-family="Arial, sans-serif" font-size="28" fill="#444">Phong cách thể thao đường phố</text>
+    <text x="60" y="190" font-family="Arial, sans-serif" font-size="20" fill="#666">Hàng cao cấp chính hãng</text>
+    
+    <!-- CTA Button -->
+    <rect x="60" y="220" width="200" height="50" rx="25" fill="#000"/>
+    <text x="160" y="255" font-family="Arial, sans-serif" font-size="20" fill="#fff" text-anchor="middle">KHÁM PHÁ NGAY</text>
+    
+    <!-- Mock varsity jacket silhouette -->
+    <g transform="translate(320, 260) scale(0.8)">
+      <!-- Varsity jacket body - Navy blue with white sleeves like in Image 2 -->
+      <path d="M150,50 C100,50 50,100 50,150 L50,350 C50,400 100,450 150,450 L350,450 C400,450 450,400 450,350 L450,150 C450,100 400,50 350,50 Z" fill="#1a2b47"/>
+      
+      <!-- White sleeves -->
+      <path d="M50,150 C50,100 20,120 0,170 L0,300 C0,350 20,370 50,350 Z" fill="#ffffff"/>
+      <path d="M450,150 C450,100 480,120 500,170 L500,300 C500,350 480,370 450,350 Z" fill="#ffffff"/>
+      
+      <!-- Collar -->
+      <path d="M150,50 C150,30 200,20 250,20 C300,20 350,30 350,50 Z" fill="#1a2b47"/>
+      
+      <!-- A letter patch -->
+      <rect x="150" y="120" width="80" height="80" rx="5" fill="#ffd700"/>
+      <text x="190" y="180" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="#1a2b47" text-anchor="middle">A</text>
+      
+      <!-- Ribbed cuffs and waistband -->
+      <rect x="0" y="300" width="50" height="20" fill="#1a2b47"/>
+      <rect x="450" y="300" width="50" height="20" fill="#1a2b47"/>
+      <rect x="50" y="430" width="400" height="20" fill="#1a2b47"/>
+    </g>
+  </g>
+  
+  <!-- Right section - Raccoon Logo -->
+  <g>
+    <!-- Background for raccoon section -->
+    <rect x="600" y="0" width="600" height="500" fill="#ffffff"/>
+    
+    <!-- Raccoon logo centered -->
+    <g transform="translate(800, 200) scale(1.5)">
+      <!-- Raccoon ears -->
+      <path d="M-100,0 L-80,-40 L-50,-10 Z" fill="#000000"/>
+      <path d="M100,0 L80,-40 L50,-10 Z" fill="#000000"/>
+      <path d="M0,-20 L-20,-40 L20,-40 Z" fill="#000000"/>
+      
+      <!-- Raccoon face/mask -->
+      <path d="M-70,0 C-60,20 -40,60 0,60 C40,60 60,20 70,0 Z" fill="#000000"/>
+      <path d="M-70,0 C-50,30 -30,40 0,40 C30,40 50,30 70,0 Z" fill="#000000"/>
+      
+      <!-- Raccoon eyes -->
+      <circle cx="-30" cy="10" r="10" fill="#ffffff"/>
+      <circle cx="30" cy="10" r="10" fill="#ffffff"/>
+      
+      <!-- Raccoon nose -->
+      <ellipse cx="0" cy="30" rx="10" ry="8" fill="#000000"/>
+    </g>
+    
+    <!-- Text elements -->
+    <text x="900" y="350" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#000" text-anchor="middle">RACCOON</text>
+    <text x="900" y="390" font-family="Arial, sans-serif" font-size="24" fill="#666" text-anchor="middle">Thương hiệu thời trang trẻ</text>
+    
+    <!-- CTA Button -->
+    <rect x="800" y="420" width="200" height="50" rx="25" fill="#000"/>
+    <text x="900" y="455" font-family="Arial, sans-serif" font-size="20" fill="#fff" text-anchor="middle">XEM BỘ SƯU TẬP</text>
+  </g>
+  
+  <!-- Divider line -->
+  <line x1="600" y1="0" x2="600" y2="500" stroke="#ddd" stroke-width="2"/>
+</svg>

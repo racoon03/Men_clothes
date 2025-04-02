@@ -1,49 +1,96 @@
-<div class="container-fluid">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h1>Quản lý danh mục</h1>
-    
-        <!-- Nếu đang thêm danh mục -->
-        <div *ngIf="isAddingCategory" style="display: flex; gap: 10px;">
-            <button class="btn btn-success" (click)="createCategory()">Lưu</button>
-            <button class="btn btn-secondary" (click)="cancelAddCategory()">Hủy</button>
+<!-- category.admin.component.html -->
+<div class="category-admin">
+    <div class="header">
+        <div class="title-section">
+            <h2>Quản lý danh mục</h2>
+            <p>Quản lý tất cả danh mục sản phẩm trong hệ thống</p>
         </div>
-    
-        <!-- Nếu chưa ở chế độ thêm -->
-        <button *ngIf="!isAddingCategory" class="btn btn-success" (click)="toggleAddCategory()">Thêm</button>
+
+        <div class="action-buttons">
+            <div *ngIf="isAddingCategory" class="add-actions">
+                <button class="btn-save" (click)="createCategory()">
+                    <i class="fas fa-check"></i>
+                    <span>Lưu</span>
+                </button>
+                <button class="btn-cancel" (click)="cancelAddCategory()">
+                    <i class="fas fa-times"></i>
+                    <span>Hủy</span>
+                </button>
+            </div>
+
+            <button *ngIf="!isAddingCategory" class="btn-add" (click)="toggleAddCategory()">
+                <i class="fas fa-plus"></i>
+                <span>Thêm danh mục</span>
+            </button>
+        </div>
     </div>
-    
-    <!-- Hiển thị ô nhập khi đang thêm danh mục -->
-    <div *ngIf="isAddingCategory" style="margin-top: 10px;">
-        <input type="text" [(ngModel)]="newCategory.name" class="form-control" placeholder="Nhập tên danh mục mới">
+
+    <!-- Form thêm danh mục -->
+    <div *ngIf="isAddingCategory" class="add-category-form">
+        <div class="form-group">
+            <label for="categoryName">Tên danh mục</label>
+            <input type="text" id="categoryName" [(ngModel)]="newCategory.name" placeholder="Nhập tên danh mục mới"
+                autofocus>
+        </div>
     </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tên</th>
-                <th>Tùy chỉnh</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let category of categories">
-                <td>
-                    {{ category.id }}</td>
-                <td>
-                    <input *ngIf="category.editMode" [(ngModel)]="category.name" class="form-control">
-                    <span *ngIf="!category.editMode">{{ category.name }}</span>
-                </td>
-                <td>
-                    <div style="display: flex; gap: 10px;">
-                    <button *ngIf="!category.editMode" class="btn btn-primary" (click)="editCategory(category)">Sửa</button>
-                    <button *ngIf="category.editMode" class="btn btn-success" (click)="saveCategory(category.id, category)">Lưu</button>                  
-                    <button class="btn btn-danger" (click)="deleteCategory(category.id)">Xóa</button>
-                    </div>
-                </td>
+    <!-- Phần nội dung bảng danh mục -->
+    <div class="category-table-container">
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th class="id-column">ID</th>
+                    <th>Tên danh mục</th>
+                    <th class="actions-column">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let category of categories" [class.editing]="category.editMode">
+                    <td class="id-column">{{ category.id }}</td>
+                    <td>
+                        <input *ngIf="category.editMode" [(ngModel)]="category.name" class="edit-input" autofocus>
+                        <span *ngIf="!category.editMode" class="category-name">{{ category.name }}</span>
+                    </td>
+                    <td class="actions-column">
+                        <div class="action-buttons">
+                            <button *ngIf="!category.editMode" class="btn-edit" (click)="editCategory(category)"
+                                title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button *ngIf="category.editMode" class="btn-save"
+                                (click)="saveCategory(category.id, category)" title="Lưu">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn-delete" (click)="deleteCategory(category.id)" title="Xóa">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-            </tr>
-        </tbody>
-    </table>
-    
+        <!-- Hiển thị thông báo khi không có danh mục -->
+        <div *ngIf="categories.length === 0" class="no-data">
+            <i class="fas fa-folder-open"></i>
+            <p>Chưa có danh mục nào. Hãy thêm danh mục mới!</p>
+        </div>
+    </div>
 
+    <!-- Phân trang -->
+    <div class="pagination" *ngIf="totalPages > 1">
+        <button class="pagination-btn" [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button *ngFor="let page of visiblePages" class="pagination-btn" [class.active]="page === currentPage"
+            (click)="changePage(page)">
+            {{ page + 1 }}
+        </button>
+
+        <button class="pagination-btn" [disabled]="currentPage === totalPages - 1"
+            (click)="changePage(currentPage + 1)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
 </div>

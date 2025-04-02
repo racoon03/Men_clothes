@@ -4,81 +4,121 @@ import { Category } from '../../models/category';
 import { ProductService } from 'src/app/services/product.service';
 import { CategoryService } from '../../services/category.service';
 import { environment } from '../../enviroments/enviroment';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   products: Product[] = [];
   categories: Category[] = []; // Dữ liệu động từ categoryService
-  selectedCategoryId: number  = 0; // Giá trị category được chọn
+  selectedCategoryId: number = 0; // Giá trị category được chọn
   currentPage: number = 1;
-  itemsPerPage: number = 9;
-  pages: number[] = [];
-  totalPages:number = 0;
+  itemsPerPage: number = 12; // Tăng số lượng sản phẩm mỗi trang
+  totalPages: number = 0;
   visiblePages: number[] = [];
-  keyword:string = "";
+  keyword: string = "";
 
   constructor(
     private productService: ProductService,
-    private categoryService: CategoryService,    
+    private categoryService: CategoryService,
+    private activatedRoute: ActivatedRoute,
     private router: Router
-    ) {}
+  ) {}
 
   ngOnInit() {
-    this.getProducts(this.keyword, this.selectedCategoryId, this.currentPage, this.itemsPerPage);
-    this.getCategories(1, 3);
+    // Tải danh mục
+    this.getCategories(1, 20);
+    
+    // Lấy category ID từ URL params
+    this.activatedRoute.params.subscribe(params => {
+      if (params['id']) {
+        // Nếu có ID trong URL
+        this.selectedCategoryId = parseInt(params['id'], 10);
+      } else {
+        // Không có ID, đặt về mặc định
+        this.selectedCategoryId = 0;
+      }
+      
+      // Tải sản phẩm với ID từ URL
+      this.getProducts(this.keyword, this.selectedCategoryId, this.currentPage, this.itemsPerPage);
+    });
   }
+  
   getCategories(page: number, limit: number) {
     this.categoryService.getCategories(page, limit).subscribe({
       next: (categories: Category[]) => {
-        debugger
         this.categories = categories;
-      },
-      complete: () => {
-        debugger;
       },
       error: (error: any) => {
         console.error('Error fetching categories:', error);
       }
     });
   }
+
+    // Dùng cho category click
+  onCategoryClick(categoryId: number) {
+    // Navigate to the same component but with category ID in the URL
+    this.router.navigate(['/home', categoryId]);
+  }
+
+  // Method to get category name by ID
+  getCategoryName(categoryId: number): string {
+    const category = this.categories.find(cat => cat.id === categoryId);
+    return category ? category.name : '';
+  }
+  
   searchProducts() {
     this.currentPage = 1;
-    this.itemsPerPage = 9;
-    debugger
     this.getProducts(this.keyword, this.selectedCategoryId, this.currentPage, this.itemsPerPage);
   }
+  
   getProducts(keyword: string, selectedCategoryId: number, page: number, limit: number) {
-    debugger
     this.productService.getProducts(keyword, selectedCategoryId, page, limit).subscribe({
       next: (response: any) => {
-        debugger
-        response.products.forEach((product: Product) => {          
+        response.products.forEach((product: Product) => {
+          // Set product URL
           product.url = `${environment.apiBaseUrl}/products/images/${
-          product.thumbnail === null ? "notfounds.jpg" : product.thumbnail
+            product.thumbnail === null ? "notfounds.jpg" : product.thumbnail
           }`;
+          
+          // Thêm thuộc tính để hiển thị card
+          this.enhanceProductData(product);
         });
+        
         this.products = response.products;
         this.totalPages = response.totalPages;
         this.visiblePages = this.generateVisiblePageArray(this.currentPage, this.totalPages);
       },
-      complete: () => {
-        debugger;
-      },
       error: (error: any) => {
-        debugger;
         console.error('Error fetching products:', error);
       }
-    });    
+    });
   }
+  
+  enhanceProductData(product: Product) {
+    // Thêm đánh giá sao
+    product.rating = 5;
+    product.ratingCount = Math.floor(Math.random() * 40) + 5; // 5-45 đánh giá
+    
+    // Thêm giảm giá (30% cho tất cả)
+    product.discount = 30;
+    product.originalPrice = Math.round(product.price * 100 / 70);
+  }
+  
   onPageChange(page: number) {
-    debugger;
-    this.currentPage = page ;
-    this.getProducts(this.keyword, this.selectedCategoryId, this.currentPage, this.itemsPerPage);
+    if (this.currentPage !== page) {
+      this.currentPage = page;
+      this.getProducts(this.keyword, this.selectedCategoryId, this.currentPage, this.itemsPerPage);
+      
+      // Cuộn lên đầu trang
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
   }
 
   generateVisiblePageArray(currentPage: number, totalPages: number): number[] {
@@ -94,11 +134,8 @@ export class HomeComponent {
 
     return new Array(endPage - startPage + 1).fill(0).map((_, index) => startPage + index);
   }
-  // Hàm xử lý sự kiện khi sản phẩm được bấm vào
+  
   onProductClick(productId: number) {
-    debugger
-    // Điều hướng đến trang detail-product với productId là tham số
-    //this.router.navigate(['/detail-product', productId]);
     this.router.navigate(['/products', productId]);
   }
 }

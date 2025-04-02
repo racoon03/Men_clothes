@@ -1,39 +1,82 @@
-<div class="container-fluid">
-    <header class="header bg-success text-white d-flex justify-content-between rounded">
-        <h1 class="header-title">Admin Manager</h1>
-        <!-- Logout Button -->
-        <button class="btn btn-outline-light btn-sm px-2" (click)="logout()">Đăng xuất</button>
-    </header>
-    <div class="row">
-        <nav id="sidebar" class="col-md-2 col-lg-2 d-md-block bg-light sidebar ">
-            <div class="position-sticky">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" (click)="showAdminComponent('orders')">
-                            <i class="fab fa-first-order icon"></i>Orders
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" (click)="showAdminComponent('categories')">
-                            <i class="fab fa-canadian-maple-leaf icon"></i>Categories
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" (click)="showAdminComponent('products')">
-                            <i class="fab fa-codepen icon"></i>Products
-                        </a>
-                    </li>
-                </ul>
+<!-- admin.component.html -->
+<div class="admin-container">
+    <!-- Sidebar -->
+    <div class="sidebar" [ngClass]="{'collapsed': isSidebarCollapsed}">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-user-shield"></i>
+                <span *ngIf="!isSidebarCollapsed">Admin</span>
             </div>
-        </nav>
-        <div class="col-md-10 col-lg-10 overflow-auto">
-            <!--
-        <ng-container [ngSwitch]="adminComponent">
-          <app-order-admin *ngSwitchCase="'orders'"></app-order-admin>
-          <app-product-admin *ngSwitchCase="'products'"></app-product-admin>
-          <app-category-admin *ngSwitchCase="'categories'"></app-category-admin>                    
-        </ng-container>
-        -->
+            <button class="toggle-btn" (click)="toggleSidebar()">
+                <i class="fas" [ngClass]="isSidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+            </button>
+        </div>
+
+        <div class="user-info" *ngIf="!isSidebarCollapsed">
+            <div class="avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <h4>{{ userName }}</h4>
+            </div>
+        </div>
+
+        <div class="menu">
+            <ul>
+                <li [ngClass]="{'active': isActive('dashboard')}">
+                    <a (click)="showAdminComponent('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span *ngIf="!isSidebarCollapsed">Tổng quan</span>
+                    </a>
+                </li>
+                <li [ngClass]="{'active': isActive('orders')}">
+                    <a (click)="showAdminComponent('orders')">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span *ngIf="!isSidebarCollapsed">Đơn hàng</span>
+                    </a>
+                </li>
+                <li [ngClass]="{'active': isActive('categories')}">
+                    <a (click)="showAdminComponent('categories')">
+                        <i class="fas fa-tags"></i>
+                        <span *ngIf="!isSidebarCollapsed">Danh mục</span>
+                    </a>
+                </li>
+                <li [ngClass]="{'active': isActive('products')}">
+                    <a (click)="showAdminComponent('products')">
+                        <i class="fas fa-box"></i>
+                        <span *ngIf="!isSidebarCollapsed">Sản phẩm</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span *ngIf="!isSidebarCollapsed">Đăng xuất</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" [ngClass]="{'expanded': isSidebarCollapsed}">
+        <div class="header">
+            <div class="page-title">
+                <h1>{{ getPageTitle() }}</h1>
+            </div>
+            <div class="header-actions">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm...">
+                </div>
+                <div class="notifications">
+                    <i class="fas fa-envelope"></i>
+                    <span class="badge">3</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
             <router-outlet></router-outlet>
         </div>
     </div>

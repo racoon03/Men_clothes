@@ -39,4 +39,8 @@ export class CategoryService {
       return this.http.delete(url, { responseType: 'text' });
   }
   
+  // Trong category.service.ts
+  countCategories(): Observable<number> {
+    return this.http.get<number>(`${this.apiGetCategories}/count`);
+  }
 }

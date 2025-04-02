@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <!-- Nền trong suốt -->
+  <rect width="240" height="240" fill="none"/>
+  
+  <!-- Đường kẻ dưới -->
+  <path d="M40,190 L80,190" stroke="#383b56" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <path d="M160,190 L200,190" stroke="#383b56" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <line x1="80" y1="190" x2="160" y2="190" stroke="#383b56" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Điểm trang trí -->
+  <circle cx="180" cy="60" r="6" fill="#b5c8de" stroke="none"/>
+  <circle cx="60" cy="150" r="4" fill="#383b56" stroke="none"/>
+  <circle cx="130" cy="120" r="3" fill="#383b56" stroke="none"/>
+  
+  <!-- Quần tây -->
+  <path d="M90,60 L150,60 L160,80 L145,180 L120,180 L95,180 L80,80 Z" fill="#cfd8e8" stroke="#383b56" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Đường may giữa -->
+  <path d="M120,60 L120,180" stroke="#383b56" stroke-width="2" stroke-dasharray="2,2"/>
+  
+  <!-- Túi quần -->
+  <path d="M100,85 L110,85" stroke="#383b56" stroke-width="3" stroke-linecap="round"/>
+  <path d="M130,85 L140,85" stroke="#383b56" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Đai quần -->
+  <path d="M90,60 L150,60" stroke="#383b56" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Nút khóa -->
+  <circle cx="120" cy="70" r="4" fill="#b5c8de" stroke="#383b56" stroke-width="2"/>
+</svg>

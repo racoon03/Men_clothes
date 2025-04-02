@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Product } from '../models/product';
 import { ProductService } from './product.service';
 import { Observable, of } from 'rxjs';
+import { CartItem } from '../models/cart.item';
+import { environment } from '../enviroments/enviroment';
 
 @Injectable({
   providedIn: 'root'
@@ -49,4 +51,99 @@ export class CartService {
     this.cart.clear(); // Xóa toàn bộ dữ liệu trong giỏ hàng
     this.saveCartToLocalStorage(); // Lưu giỏ hàng mới vào Local Storage (trống)
   }
+
+  /**
+   * Lấy danh sách sản phẩm trong giỏ hàng với đầy đủ thông tin
+   */
+  getCartItems(): Observable<CartItem[]> {
+    const cart = this.getCart();
+    const productIds = Array.from(cart.keys());
+
+    if (productIds.length === 0) {
+      return of([]);
+    }
+
+    return new Observable<CartItem[]>(observer => {
+      this.productService.getProductsByIds(productIds).subscribe({
+        next: (products) => {
+          const cartItems = productIds.map((productId) => {
+            const product = products.find((p) => p.id === productId);
+            
+            if (product) {
+              product.thumbnail = `${environment.apiBaseUrl}/products/images/${product.thumbnail}`;
+            }
+            
+            const cartItem = cart.get(productId)!;
+            
+            return {
+              product: product!,
+              quantity: cartItem.quantity,
+              color_id: cartItem.color_id,
+              size_id: cartItem.size_id,
+              selected: true // Mặc định chọn tất cả sản phẩm
+            };
+          });
+          
+          observer.next(cartItems);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('Lỗi khi tải dữ liệu sản phẩm:', error);
+          observer.error(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Cập nhật số lượng sản phẩm trong giỏ hàng
+   */
+  updateQuantity(productId: number, quantity: number): void {
+    if (this.cart.has(productId)) {
+      const item = this.cart.get(productId)!;
+      item.quantity = quantity;
+      this.cart.set(productId, item);
+      this.saveCartToLocalStorage();
+    }
+  }
+
+  /**
+   * Xóa sản phẩm khỏi giỏ hàng
+   */
+  removeItem(productId: number): void {
+    this.cart.delete(productId);
+    this.saveCartToLocalStorage();
+  }
+
+  /**
+   * Xóa nhiều sản phẩm khỏi giỏ hàng
+   */
+  removeItems(productIds: number[]): void {
+    productIds.forEach(id => {
+      this.cart.delete(id);
+    });
+    this.saveCartToLocalStorage();
+  }
+
+  /**
+   * Tính tổng tiền hàng trong giỏ
+   */
+  calculateSubtotal(selectedItems: CartItem[]): number {
+    return selectedItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  }
+
+  /**
+   * Đếm số lượng sản phẩm trong giỏ hàng
+   */
+  getCartItemCount(): number {
+    return this.cart.size;
+  }
+
+  /**
+   * Kiểm tra giỏ hàng có trống không
+   */
+  isCartEmpty(): boolean {
+    return this.cart.size === 0;
+  }
+  
 }

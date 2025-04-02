@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -20,6 +21,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UserProfileComponent } from './components/user-profile/user.profile.component';
 import { AdminModule } from './components/admin/admin.module';
+import { HomePageComponent } from './components/homepage/homepage.component';
+import { OrderUserComponent } from './components/order/order-user/order.user.component';
+import { OrderStatusTimelineComponent } from './shared/order_timeline/order.status.timeline';
 // import { AdminComponent } from './components/admin/admin.component';
 // import { OrderAdminComponent } from './components/admin/order/order.admin.component';
 // import { ProductAdminComponent } from './components/admin/product/product.admin.component';
@@ -29,14 +33,17 @@ import { AdminModule } from './components/admin/admin.module';
 @NgModule({
   declarations: [    
     HomeComponent, 
+    HomePageComponent,
     HeaderComponent,
     FooterComponent, 
     DetailProductComponent,
     OrderComponent,
+    OrderUserComponent,
     OrderDetailComponent,
     LoginComponent,
     RegisterComponent,
     UserProfileComponent,
+    OrderStatusTimelineComponent,
     AppComponent,
     //admin    
     // AdminComponent,

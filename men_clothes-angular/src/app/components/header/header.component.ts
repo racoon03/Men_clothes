@@ -14,9 +14,10 @@ export class HeaderComponent implements OnInit {
   userResponse?:UserResponse | null;
   isPopoverOpen = false;
   activeNavItem: number = 0;
+  userId?: number = 0;
 
   constructor(
-    private userService: UserService,   
+    private userService: UserService, 
     private popoverConfig: NgbPopoverConfig,  
     private tokenService: TokenService,
     private router: Router,
@@ -25,6 +26,7 @@ export class HeaderComponent implements OnInit {
    }
   ngOnInit() {
     this.userResponse = this.userService.getUserResponseFromLocalStorage();    
+    this.userId = this.userResponse?.id;
   } 
 
   togglePopover(event: Event): void {
@@ -36,7 +38,12 @@ export class HeaderComponent implements OnInit {
     if(index === 0) {
       debugger
       this.router.navigate(['/user-profile']);                      
-    } else if (index === 2) {
+    }
+    else if (index === 1) {
+      debugger
+       this.router.navigate(['/orders/user', this.userId]);
+    }
+    else if (index === 2) {
       this.userService.removeUserFromLocalStorage();
       this.tokenService.removeToken();
       this.userResponse = this.userService.getUserResponseFromLocalStorage();    

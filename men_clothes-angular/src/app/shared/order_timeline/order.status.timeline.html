@@ -1,0 +1,70 @@
+<!-- Order Timeline Status -->
+<div class="order-timeline-container">
+    <div class="order-id">
+        <div class="order-number">ID ĐƠN HÀNG: {{ orderResponse?.id }}</div>
+        <div class="delivery-status">{{ getStatusText() }}</div>
+    </div>
+
+    <div class="timeline-wrapper">
+        <div class="timeline-steps">
+            <!-- Step 1: Đơn Hàng Đã Đặt -->
+            <div class="timeline-step" [ngClass]="{'active': isStepActive(1), 'completed': isStepCompleted(1)}">
+                <div class="timeline-icon">
+                    <i class="fa fa-file-text-o"></i>
+                </div>
+                <div class="timeline-connector" *ngIf="!isLastStep(1)"></div>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">Đơn Hàng Đã Đặt</h4>
+                    <p class="timeline-date" *ngIf="getStepDate(1)">{{ getStepDate(1) | date:'dd/MM/yyyy' }}</p>
+                </div>
+            </div>
+
+            <!-- Step 2: Đơn Hàng Đã Thanh Toán -->
+            <div class="timeline-step" [ngClass]="{'active': isStepActive(2), 'completed': isStepCompleted(2)}">
+                <div class="timeline-icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+                <div class="timeline-connector" *ngIf="!isLastStep(2)"></div>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">Đơn Hàng Đã Thanh Toán</h4>
+                    <p class="timeline-date" *ngIf="getStepDate(2)">{{ getStepDate(2) | date:'dd/MM/yyyy' }}</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Đã Giao Cho ĐVVC -->
+            <div class="timeline-step" [ngClass]="{'active': isStepActive(3), 'completed': isStepCompleted(3)}">
+                <div class="timeline-icon">
+                    <i class="fa fa-truck"></i>
+                </div>
+                <div class="timeline-connector" *ngIf="!isLastStep(3)"></div>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">Đã Giao Cho ĐVVC</h4>
+                    <p class="timeline-date" *ngIf="getStepDate(3)">{{ getStepDate(3) | date:'dd/MM/yyyy' }}</p>
+                </div>
+            </div>
+
+            <!-- Step 4: Đang Giao -->
+            <div class="timeline-step" [ngClass]="{'active': isStepActive(4), 'completed': isStepCompleted(4)}">
+                <div class="timeline-icon">
+                    <i class="fa fa-shipping-fast"></i>
+                </div>
+                <div class="timeline-connector" *ngIf="!isLastStep(4)"></div>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">Đang Giao</h4>
+                    <p class="timeline-date" *ngIf="getStepDate(4)">{{ getStepDate(4) | date:'dd/MM/yyyy' }}</p>
+                </div>
+            </div>
+
+            <!-- Step 5: Đã Giao -->
+            <div class="timeline-step" [ngClass]="{'active': isStepActive(5), 'completed': isStepCompleted(5)}">
+                <div class="timeline-icon">
+                    <i class="fa fa-check-circle"></i>
+                </div>
+                <div class="timeline-content">
+                    <h4 class="timeline-title">Đã Giao</h4>
+                    <p class="timeline-date" *ngIf="getStepDate(5)">{{ getStepDate(5) | date:'dd/MM/yyyy' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -16,15 +16,20 @@ import { UserProfileComponent } from './components/user-profile/user.profile.com
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminGuardFn } from './guards/admin.guard';
 import { PaymentCallbackComponent } from './components/payment-callback/payment-callback.component';
+import { HomePageComponent } from './components/homepage/homepage.component';
+import { OrderUserComponent } from './components/order/order-user/order.user.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: 'home/:id', component: HomeComponent },
+  { path: '', component: HomePageComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'products/:id', component: DetailProductComponent },
   { path: 'orders', component: OrderComponent, canActivate: [AuthGuardFn] },
   { path: 'user-profile', component: UserProfileComponent, canActivate:[AuthGuardFn] },
   { path: 'orders/:id', component: OrderDetailComponent },
+  { path: 'orders/user/:id', component:  OrderUserComponent},
+
   //Admin 
   { 
     path: 'admin', 

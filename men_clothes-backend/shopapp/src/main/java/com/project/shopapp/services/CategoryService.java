@@ -51,4 +51,8 @@ public class CategoryService implements ICategoryService {
         //xóa xong
         categoryRepository.deleteById(id);
     }
+
+    public Long countCategories() {
+        return categoryRepository.count();
+    }
 }

@@ -16,4 +16,8 @@ public interface IOrderService {
     List<Order> findByUserId(Long userId);
 
     Page<Order> getOrdersByKeyword(String keyword, Pageable pageable);
+    Page<Order> findByUserIdWithPagination(Long userId, Pageable pageable);
+
+    // cancel don hang
+    void updateOrderStatus(Long id, String status) throws DataNotFoundException;
 }

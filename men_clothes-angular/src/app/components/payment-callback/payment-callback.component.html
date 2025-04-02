@@ -1,0 +1,7 @@
+<div class="payment-callback">
+    <p *ngIf="loading">Đang xử lý thanh toán...</p>
+
+    <p *ngIf="!loading && paymentSuccess">Thanh toán thành công!</p>
+
+    <p *ngIf="!loading && !paymentSuccess">Thanh toán thất bại. Vui lòng thử lại.</p>
+</div>

@@ -1,67 +1,144 @@
 <app-header></app-header>
-<div class="container">
-    <div class="confirmation-container">
-        <h1>Xác nhận đơn hàng</h1>
-        <p>Cảm ơn bạn đã đặt hàng! Dưới đây là thông tin chi tiết về đơn hàng của bạn</p>     
-    </div>
-    <!-- Thông tin người nhận -->
-    <div *ngIf="orderResponse" class="row">
-        <div class="col-md-6">
-            <h2 class="product-header">Thông tin người nhận</h2>
-            <div class="mb-3">
-                <p class="form-label">Họ và tên: {{ orderResponse.fullname }}</p>
-            </div>
-            <!-- Các trường thông tin khác -->
-            <div class="mb-3">
-                <p class="form-label">Email: {{ orderResponse.email }}</p>
-            </div>
-            <div class="mb-3">
-                <p class="form-label">Số điện thoại: {{ orderResponse.phone_number }}</p>
-            </div>
-            <div class="mb-3">
-                <p class="form-label">Địa chỉ: {{ orderResponse.address }}</p>
-            </div>
-            <div class="mb-3">
-                <p class="form-label">Ghi chú: {{ orderResponse.note }}</p>
-            </div>
-            <div class="mb-3">
-                <p class="form-label">Phương thức vận chuyển: {{ orderResponse.shipping_method }}</p>
-            </div>
-            <div class="mb-3">
-                <p class="form-label">Phương thức thanh toán: {{ orderResponse.payment_method }}</p>
-            </div>
+
+<div class="container py-3">
+    <div *ngIf="isLoading" class="text-center py-3">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
         </div>
-    
-        <!-- Sản phẩm đã đặt hàng -->
-        <div class="col-md-6">
-            <h2 class="product-order">Sản phẩm đã đặt hàng</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th scope="col" class="text-start">Sản phẩm</th>
-                        <th scope="col">Số lượng</th>
-                        <th scope="col">Đơn giá</th>
-                        <th scope="col">Tổng giá</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of orderResponse.order_details">
-                        <td>
-                            <div class="product-info">
-                                <img [src]="item.product.thumbnail" alt="Product Image" class="product-image">
-                                <span class="product-name">{{ item.product.name }}</span>
+        <p class="mt-2">Đang tải thông tin đơn hàng...</p>
+    </div>
+
+    <div *ngIf="!isLoading && errorMessage" class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && orderResponse" class="order-detail-wrapper">
+        <!-- Sử dụng component timeline status -->
+        <app-order-status-timeline [orderResponse]="orderResponse"></app-order-status-timeline>
+
+        <div class="order-detail-container">
+            <div class="confirmation-container text-center mb-3">
+                <h2 class="confirmation-title">Chi tiết đơn hàng</h2>
+                <p class="confirmation-text mb-2">Mã đơn hàng: #{{ orderResponse.id }}</p>
+                <div class="order-status-badge" [ngClass]="getStatusClass()">
+                    {{ getStatusText() }}
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Thông tin người nhận -->
+                <div class="col-lg-5 mb-3">
+                    <div class="info-card">
+                        <h2 class="info-card-title">Thông tin người nhận</h2>
+                        <div class="info-card-body">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-user"></i> Họ và tên:</span>
+                                <span class="info-value">{{ orderResponse.fullname }}</span>
                             </div>
-                        </td>
-                        <td>{{ item.number_of_products }}</td>
-                        <td>{{ item.price | number:'1.2-2' }}</td>
-                        <td>{{ item.total_money | number:'1.2-2' }}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="text-start mt-3">
-                <h4 class="header-text text-end">Tổng giá: {{ orderResponse.total_money | number:'1.2-2' }}</h4>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-envelope"></i> Email:</span>
+                                <span class="info-value">{{ orderResponse.email }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-phone"></i> Số điện thoại:</span>
+                                <span class="info-value">{{ orderResponse.phone_number }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-map-marker"></i> Địa chỉ:</span>
+                                <span class="info-value">{{ orderResponse.address }}</span>
+                            </div>
+                            <div class="info-item" *ngIf="orderResponse.note">
+                                <span class="info-label"><i class="fa fa-sticky-note"></i> Ghi chú:</span>
+                                <span class="info-value">{{ orderResponse.note }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card mt-3">
+                        <h2 class="info-card-title">Thông tin vận chuyển & thanh toán</h2>
+                        <div class="info-card-body">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-calendar"></i> Ngày đặt hàng:</span>
+                                <span class="info-value">{{ orderResponse.order_date | date:'dd/MM/yyyy' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-truck"></i> Ngày giao hàng:</span>
+                                <span class="info-value">{{ orderResponse.shipping_date | date:'dd/MM/yyyy' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-shipping-fast"></i> Phương thức vận
+                                    chuyển:</span>
+                                <span class="info-value">{{ orderResponse.shipping_method }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fa fa-credit-card"></i> Phương thức thanh
+                                    toán:</span>
+                                <span class="info-value">{{ orderResponse.payment_method }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm đã đặt hàng -->
+                <div class="col-lg-7">
+                    <div class="products-card">
+                        <h2 class="products-card-title">Sản phẩm đã đặt hàng</h2>
+                        <div class="products-card-body">
+                            <div class="table-responsive">
+                                <table class="products-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="text-start product-col">Sản phẩm</th>
+                                            <th scope="col" class="text-center">SL</th>
+                                            <th scope="col" class="text-end">Đơn giá</th>
+                                            <th scope="col" class="text-end">Thành tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of orderResponse.order_details">
+                                            <td class="product-col">
+                                                <div class="product-info">
+                                                    <img [src]="item.product.thumbnail" [alt]="item.product.name"
+                                                        class="product-image">
+                                                    <div class="product-details">
+                                                        <span class="product-name">{{ item.product.name }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">{{ item.number_of_products }}</td>
+                                            <td class="text-end">{{ item.price | currency:'VND':'symbol':'1.0-0' }}</td>
+                                            <td class="text-end">{{ item.number_of_products * item.price | currency:'VND':'symbol':'1.0-0' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Tổng tiền -->
+                            <div class="order-summary">
+                                <div class="summary-row">
+                                    <span>Tổng thanh toán (bao gồm phí vận chuyển):</span>
+                                    <span>{{ orderResponse.total_money | currency:'VND':'symbol':'1.0-0' }}</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Tổng cộng:</span>
+                                    <span>{{ orderResponse.total_money | currency:'VND':'symbol':'1.0-0' }}</span>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="action-buttons my-4 mx-3">
+                                    <button class="btn btn-primary" (click)="printOrder()">
+                                        <i class="fa fa-print"></i> In đơn hàng
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <app-footer></app-footer>

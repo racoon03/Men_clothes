@@ -1,46 +1,322 @@
-.container {
-    color: black;
-}
-.confirmation-container {
-    margin: 50px auto;
-    padding: 20px;
-    max-width: 600px;            
-    border-radius: 10px;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
-}
-.product-info {
+@import '../../shared/variables.scss';
+:host {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.product-image {
-    width: 100px;
-    height: 100px;
-    border-radius: 5px;
-    margin-right: 10px;
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.product-name {
-    margin-right: 10px;
-}
-table {
-    width: 100%;
-    border-radius: 10px;
-    border: none;
-    border-collapse: separate;
-    border: 1px solid black;
-    border-spacing: 0;    
-    // background-color: rgb(12, 13, 54);    
+// Main container
+.order-detail-wrapper {
+    flex: 1;
+    position: relative;
+    z-index: 10;
 }
 
-th,
-td {
-    padding: 10px;
-    text-align: center;
+// Đặt app-footer nếu có trong template
+app-footer {
+    margin-top: auto;
 }
-.btn-gradient {
-    background: linear-gradient(to right, rgb(225, 64, 180), rgb(126, 43, 237));
-    color: white;
-    border-radius: 30px;
-    width: 200px;
+
+// Main container
+// .order-detail-wrapper {
+//     position: relative;
+//     z-index: 10;
+// }
+
+.order-detail-container {
+    margin-bottom: $spacing-lg;
+    background-color: $white-color;
+    padding: $spacing-md;
+    border-radius: $border-radius;
+    box-shadow: $card-shadow;
+
+    .confirmation-container {
+        margin-bottom: $spacing-md;
+
+        .confirmation-title {
+            font-size: $font-size-large;
+            color: $primary-color;
+            margin-bottom: $spacing-xs;
+            font-weight: 600;
+        }
+
+        .confirmation-text {
+            font-size: $font-size-small;
+            color: $gray-color;
+            margin-bottom: $spacing-xs;
+        }
+    }
+
+    .order-status-badge {
+        display: inline-block;
+        padding: $spacing-xs $spacing-sm;
+        border-radius: 20px;
+        font-size: $font-size-small;
+        font-weight: 600;
+        margin-bottom: $spacing-md;
+
+        &.status-pending {
+            background-color: rgba($rating-color, 0.2);
+            color: darken($rating-color, 20%);
+        }
+
+        &.status-processing {
+            background-color: rgba($accent-color, 0.2);
+            color: darken($accent-color, 10%);
+        }
+
+        &.status-shipped {
+            background-color: rgba(#4caf50, 0.2);
+            color: darken(#4caf50, 10%);
+        }
+
+        &.status-delivered {
+            background-color: rgba(#4caf50, 0.2);
+            color: darken(#4caf50, 10%);
+        }
+
+        &.status-cancelled {
+            background-color: rgba($discount-color, 0.2);
+            color: darken($discount-color, 10%);
+        }
+    }
+
+    // Card Styles
+    .info-card,
+    .products-card {
+        background-color: $white-color;
+        border-radius: $border-radius;
+        box-shadow: $card-shadow;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .info-card-title,
+    .products-card-title {
+        font-size: $font-size-normal;
+        font-weight: 600;
+        color: $primary-color;
+        padding: $spacing-sm;
+        border-bottom: 1px solid $light-gray;
+        background-color: $secondary-color;
+        margin: 0;
+    }
+
+    .info-card-body,
+    .products-card-body {
+        padding: $spacing-sm;
+    }
+
+    // Info Item
+    .info-item {
+        margin-bottom: $spacing-sm;
+        display: flex;
+        flex-wrap: wrap;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            width: 160px;
+            font-weight: 500;
+            color: $dark-gray;
+
+            i {
+                width: 20px;
+                margin-right: $spacing-xs;
+                color: $accent-color;
+            }
+        }
+
+        .info-value {
+            flex: 1;
+            color: $primary-color;
+        }
+    }
+
+    // Products Table
+    .products-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: $spacing-sm;
+
+        th,
+        td {
+            padding: $spacing-sm;
+            vertical-align: middle;
+            border-bottom: 1px solid $light-gray;
+        }
+
+        th {
+            font-weight: 600;
+            color: $dark-gray;
+            font-size: $font-size-small;
+            text-transform: uppercase;
+            background-color: $secondary-color;
+        }
+
+        td {
+            color: $primary-color;
+        }
+
+        thead tr {
+            background-color: $secondary-color;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-col {
+            min-width: 200px;
+        }
+    }
+
+    .product-info {
+        display: flex;
+        align-items: center;
+
+        .product-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: $border-radius;
+            margin-right: $spacing-sm;
+            border: 1px solid $light-gray;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: $primary-color;
+            display: block;
+            font-size: $font-size-small;
+        }
+    }
+
+    // Order Summary
+    .order-summary {
+        margin-top: $spacing-md;
+        padding-top: $spacing-sm;
+        border-top: 1px solid $light-gray;
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: $spacing-xs;
+            font-size: $font-size-small;
+            color: $dark-gray;
+
+            &.total {
+                font-size: $font-size-normal;
+                font-weight: 700;
+                color: $primary-color;
+                margin-top: $spacing-sm;
+                padding-top: $spacing-sm;
+                border-top: 1px dashed $light-gray;
+            }
+        }
+    }
+
+    // Action Buttons
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+
+        .btn {
+            padding: $spacing-xs $spacing-md;
+            border-radius: $border-radius;
+            font-weight: 500;
+            font-size: $font-size-small;
+
+            i {
+                margin-right: $spacing-xs;
+            }
+        }
+
+        .btn-primary {
+            background-color: $accent-color;
+            border-color: $accent-color;
+
+            &:hover {
+                background-color: darken($accent-color, 10%);
+                border-color: darken($accent-color, 10%);
+            }
+        }
+
+        .btn-outline-secondary {
+            color: $dark-gray;
+            border-color: $light-gray;
+
+            &:hover {
+                background-color: $secondary-color;
+                color: $primary-color;
+            }
+        }
+    }
 }
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .order-detail-container {
+        .info-item {
+            flex-direction: column;
+
+            .info-label {
+                width: 100%;
+                margin-bottom: $spacing-xs;
+            }
+        }
+
+        .products-table {
+            .product-col {
+                min-width: auto;
+            }
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: $spacing-sm;
+
+            .btn {
+                width: 100%;
+            }
+        }
+    }
+}
+
+/* Thêm vào CSS của thẻ chứa thông tin người nhận */
+.info-card {
+    height: auto !important;
+    /* Ghi đè bất kỳ height cố định nào */
+    min-height: auto !important;
+    padding-bottom: 0;
+    /* Giảm padding dưới */
+    margin-bottom: 0;
+    /* Giảm margin dưới */
+    display: block;
+    /* Thay vì flex nếu đang dùng */
+}
+
+.info-card-body {
+    padding-bottom: 10px !important;
+    /* Giảm padding dưới cho phần body */
+}
+
+/* Nếu trong card có phần thông tin người nhận */
+.info-item:last-child {
+    margin-bottom: 0 !important;
+    /* Loại bỏ margin dưới của phần tử cuối cùng */
+}
+

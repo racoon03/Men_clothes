@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -18,7 +19,9 @@ export class RegisterComponent  {
   isAccepted: boolean;
   dateOfBirth: Date;
 
-  constructor(){
+  constructor(
+    private router: Router
+  ){
     this.phoneNumber = '';
     this.password = '';
     this.retypePassword = '';
@@ -28,6 +31,7 @@ export class RegisterComponent  {
     this.dateOfBirth = new Date();
     this.dateOfBirth.setFullYear(this.dateOfBirth.getFullYear() - 18);
     //inject
+
   }
 
   register() {
@@ -40,6 +44,13 @@ export class RegisterComponent  {
       `dateOfBirth: ${this.dateOfBirth}`;
     alert(message);
   }
+
+  gologin() {
+    debugger
+    // Chuyển hướng người dùng đến trang đăng ký (hoặc trang tạo tài khoản)
+    this.router.navigate(['/login']); 
+  }
+
   checkPasswords() {    
       if (this.password !== this.retypePassword) {
         this.registerForm.form.controls['retypePassword']

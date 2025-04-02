@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <!-- Nền trong suốt -->
+  <rect width="240" height="240" fill="none"/>
+  
+  <!-- Đường kẻ dưới -->
+  <path d="M40,190 L80,190" stroke="#694688" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <path d="M160,190 L200,190" stroke="#694688" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <line x1="80" y1="190" x2="160" y2="190" stroke="#694688" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Điểm trang trí -->
+  <circle cx="180" cy="60" r="6" fill="#d3b8e6" stroke="none"/>
+  <circle cx="150" cy="150" r="4" fill="#694688" stroke="none"/>
+  <circle cx="60" cy="150" r="4" fill="#694688" stroke="none"/>
+  <circle cx="40" cy="120" r="3" fill="#694688" stroke="none"/>
+  
+  <!-- Áo polo -->
+  <path d="M70,70 L90,50 L150,50 L170,70 L170,170 L70,170 Z" fill="#c6aee0" stroke="#694688" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Cổ áo -->
+  <path d="M90,50 L120,65 L150,50" fill="#e8dcf5" stroke="#694688" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M120,65 L120,90" stroke="#694688" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Tay áo -->
+  <path d="M70,70 L50,90" stroke="#694688" stroke-width="6" stroke-linecap="round"/>
+  <path d="M170,70 L190,90" stroke="#694688" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Nút áo -->
+  <circle cx="120" cy="75" r="3" fill="#e8dcf5" stroke="#694688" stroke-width="2"/>
+  <circle cx="120" cy="85" r="3" fill="#e8dcf5" stroke="#694688" stroke-width="2"/>
+  
+  <!-- Viền tay -->
+  <path d="M80,90 L90,90" stroke="#694688" stroke-width="3" stroke-linecap="round"/>
+  <path d="M150,90 L160,90" stroke="#694688" stroke-width="3" stroke-linecap="round"/>
+</svg>

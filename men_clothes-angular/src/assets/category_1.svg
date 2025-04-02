@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <!-- Nền trong suốt -->
+  <rect width="240" height="240" fill="none"/>
+  
+  <!-- Đường kẻ dưới -->
+  <path d="M40,190 L80,190" stroke="#1d6568" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <path d="M160,190 L200,190" stroke="#1d6568" stroke-width="4" stroke-linecap="round" stroke-dasharray="1,7"/>
+  <line x1="80" y1="190" x2="160" y2="190" stroke="#1d6568" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Điểm trang trí -->
+  <circle cx="180" cy="60" r="6" fill="#9feacd" stroke="none"/>
+  <circle cx="150" cy="150" r="4" fill="#1d6568" stroke="none"/>
+  <circle cx="60" cy="150" r="4" fill="#1d6568" stroke="none"/>
+  <circle cx="130" cy="120" r="3" fill="#1d6568" stroke="none"/>
+  
+  <!-- Áo sơ mi -->
+  <path d="M70,65 L120,50 L170,65 L170,170 L70,170 Z" fill="#e3f2f7" stroke="#1d6568" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Cổ áo -->
+  <path d="M90,65 L120,50 L150,65" fill="#f9a287" stroke="#1d6568" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Tay áo -->
+  <path d="M70,65 L55,95 L70,95 L70,65" fill="#e3f2f7" stroke="#1d6568" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M170,65 L185,95 L170,95 L170,65" fill="#e3f2f7" stroke="#1d6568" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Các nút áo -->
+  <circle cx="120" cy="85" r="5" fill="#f9a287" stroke="#1d6568" stroke-width="3"/>
+  <circle cx="120" cy="105" r="5" fill="#f9a287" stroke="#1d6568" stroke-width="3"/>
+  <circle cx="120" cy="125" r="5" fill="#f9a287" stroke="#1d6568" stroke-width="3"/>
+  <circle cx="120" cy="145" r="5" fill="#f9a287" stroke="#1d6568" stroke-width="3"/>
+  
+  <!-- Sọc dọc -->
+  <line x1="100" y1="65" x2="100" y2="170" stroke="#9feacd" stroke-width="5" stroke-linecap="round"/>
+  <line x1="90" y1="65" x2="90" y2="170" stroke="#d9dbd8" stroke-width="5" stroke-linecap="round"/>
+  <line x1="140" y1="65" x2="140" y2="170" stroke="#f9a287" stroke-width="5" stroke-linecap="round"/>
+  <line x1="150" y1="65" x2="150" y2="170" stroke="#d9dbd8" stroke-width="5" stroke-linecap="round"/>
+</svg>
