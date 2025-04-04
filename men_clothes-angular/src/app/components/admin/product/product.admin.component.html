@@ -1,71 +1,159 @@
-<div class="container-fluid">
-    <div class="header-container">
-        <h1>Quản lý sản phẩm</h1>
-        <ng-container ngbPopover="Thêm sản phẩm, Quản lý màu, kích cỡ" popoverTitle="Tùy chọn sản phẩm" triggers="click" [placement]="'bottom'">
-            <!-- Hiển thị icon thay vì chữ -->
-            <a class="nav-link icon-toggle" [ngbPopover]="popoverContent" (click)="togglePopover($event)">
-                <i class="fas fa-bars"></i> <!-- Icon 3 gạch ngang -->
-            </a>
-        
-            <!-- Nội dung Popover -->
-            <ng-template #popoverContent>
-                <div class="popover-list">
-                    <a class="popover-item" (click)="handleOptionClick(0)">Thêm sản phẩm</a>
-                    <a class="popover-item" (click)="handleOptionClick(1)">Quản lý màu, kích cỡ</a>
-                </div>
-            </ng-template>
-        </ng-container>
+<div class="product-admin">
+    <div class="header">
+        <div class="title-section">
+            <h2>Quản lý sản phẩm</h2>
+            <p>Quản lý tất cả sản phẩm trong hệ thống</p>
+        </div>
+
+        <div class="action-buttons">
+            <div class="search-bar">
+                <input type="text" [(ngModel)]="keyword" placeholder="Tìm kiếm sản phẩm..." class="search-input">
+                <button class="btn-search" (click)="searchProducts()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <div class="category-filter">
+                <select [(ngModel)]="selectedCategoryId" (change)="filterByCategory()" class="category-select">
+                    <option [value]="0">Tất cả danh mục</option>
+                    <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+                </select>
+            </div>
+
+            <button class="btn-add" (click)="handleOptionClick(0)">
+                <i class="fas fa-plus"></i>
+                <span>Thêm sản phẩm</span>
+            </button>
+
+            <button class="btn-edit" (click)="handleOptionClick(1)">
+                <i class="fas fa-palette"></i>
+                <span>Quản lý màu, kích cỡ</span>
+            </button>
+        </div>
     </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tên</th>
-                <th>Giá</th>
-                <th>Tùy chỉnh</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let product of products">
-                <td> {{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.price }}</td>
-                
-                
-                <td>
-                    <div style="display: flex; gap: 10px;">
-                        <button (click)="viewDetails(product.id)"  class="btn btn-primary" style="white-space: nowrap;">
-                            Chi tiết
-                        </button>
-                        <button (click)="deleteProduct(product.id)" class="btn btn-danger" >Xóa</button>
-                    </div>
-                </td>
+    <!-- Hiển thị tổng quát -->
+    <div class="product-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ products.length }}</h3>
+                <p>Sản phẩm hiển thị</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ totalProducts || 0 }}</h3>
+                <p>Tổng số sản phẩm</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-filter"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ selectedCategoryId == 0 ? 'Tất cả' : selectedCategoryName }}</h3>
+                <p>Danh mục đang lọc</p>
+            </div>
+        </div>
+    </div>
 
-            </tr>
-        </tbody>
-    </table>
-    <div class="d-flex justify-content-center">
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <li class="page-item" *ngIf="currentPage > 1">
-                    <a class="page-link" (click)="onPageChange(1)">First</a>
-                </li>
-                <li class="page-item" *ngIf="currentPage > 1">
-                    <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
-                </li>
-                <ng-container *ngFor="let page of visiblePages">
-                    <li class="page-item" [ngClass]="{'active': page === currentPage}">
-                        <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
-                    </li>
-                </ng-container>
-                <li class="page-item" *ngIf="currentPage < totalPages">
-                    <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
-                </li>
-                <li class="page-item" *ngIf="currentPage < totalPages">
-                    <a class="page-link" (click)="onPageChange(totalPages)">Last</a>
-                </li>
-            </ul>
-        </nav>
+    <!-- Bảng sản phẩm -->
+    <div class="product-table-container">
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let product of products">
+                    <td class="id-column">{{ product.id }}</td>
+                    <td class="image-column">
+                        <img [src]="product.thumbnail ? product.thumbnail : '/assets/images/no-image.png'"
+                            alt="{{ product.name }}" class="product-thumbnail">
+                    </td>
+                    <td class="name-column">
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-description" *ngIf="product.description">{{ product.description | slice:0:50
+                            }}{{ product.description.length > 50 ? '...' : '' }}</div>
+                    </td>
+                    <td>{{ product.categoryName || 'Chưa phân loại' }}</td>
+                    <td class="price-column">{{ product.price | number:'1.0-0' }}đ</td>
+                    <td>{{ getProductStock(product.id) || 'N/A' }}</td>
+                    <td class="actions-column">
+                        <div class="action-buttons">
+                            <button class="btn-view" (click)="viewDetails(product.id)" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            
+                            <button class="btn-delete" (click)="showDeleteConfirm(product)" title="Xóa">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Hiển thị thông báo khi không có sản phẩm -->
+        <div *ngIf="products.length === 0" class="no-data">
+            <i class="fas fa-box-open"></i>
+            <p>Không tìm thấy sản phẩm nào. Hãy thêm sản phẩm mới!</p>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận xóa -->
+    <div class="delete-modal" *ngIf="showDeleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Xác nhận xóa</h3>
+                <button class="close-btn" (click)="cancelDelete()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa sản phẩm <strong>{{ productToDelete?.name }}</strong>?</p>
+                <p class="warning-text">Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="cancelDelete()">Hủy bỏ</button>
+                <button class="btn-confirm-delete" (click)="confirmDelete()">Xác nhận xóa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="pagination" *ngIf="totalPages > 1">
+        <button class="pagination-btn" [disabled]="currentPage <= 1" (click)="onPageChange(1)">
+            <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button class="pagination-btn" [disabled]="currentPage <= 1" (click)="onPageChange(currentPage - 1)">
+            <i class="fas fa-angle-left"></i>
+        </button>
+
+        <ng-container *ngFor="let page of visiblePages">
+            <button class="pagination-btn" [class.active]="page === currentPage" (click)="onPageChange(page)">
+                {{ page }}
+            </button>
+        </ng-container>
+
+        <button class="pagination-btn" [disabled]="currentPage >= totalPages" (click)="onPageChange(currentPage + 1)">
+            <i class="fas fa-angle-right"></i>
+        </button>
+        <button class="pagination-btn" [disabled]="currentPage >= totalPages" (click)="onPageChange(totalPages)">
+            <i class="fas fa-angle-double-right"></i>
+        </button>
     </div>
 </div>

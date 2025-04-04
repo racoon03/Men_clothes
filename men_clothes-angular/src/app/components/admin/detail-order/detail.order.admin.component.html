@@ -1,52 +1,259 @@
-<h1>This is detail order admin</h1>
-<div class="container">
-    <h1>Order Details</h1>
-
-    <div class="row">
-        <div class="col-md-6">
-            <h3>Order Information</h3>
-            <p><strong>Order ID:</strong> {{ orderResponse.id }}</p>
-            <p><strong>User ID:</strong> {{ orderResponse.user_id }}</p>
-            <p><strong>Full Name:</strong> {{ orderResponse.fullname }}</p>
-            <p><strong>Phone Number:</strong> {{ orderResponse.phone_number }}</p>
-            <p><strong>Email:</strong> {{ orderResponse.email }}</p>
-            <p><strong>Address:</strong> {{ orderResponse.address }}</p>
-            <p><strong>Note:</strong> {{ orderResponse.note }}</p>
-            <p><strong>Order Date:</strong> {{ orderResponse.order_date | date }}</p>
-
-            <div class="form-group">
-                <label for="statusSelect"><strong>Status:</strong></label>
-                <select class="form-control" id="statusSelect" [(ngModel)]="orderResponse.status">
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
+<div class="order-detail-container">
+    <div class="header-section">
+        <div class="title-area">
+            <h1>Chi tiết đơn hàng #{{ orderResponse.id }}</h1>
+            <div class="status-badge" [ngClass]="getStatusClass()">
+                {{ getStatusText(orderResponse.status) }}
             </div>
         </div>
-        <h3>Order Details</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <!--<th>Total</th>-->
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let order_detail of orderResponse.order_details; 
-        let i = index">
-                    <td>{{ order_detail.product.name }}</td>
-                    <td>
-                        <p>{{order_detail.product.price}}</p>
-                    <td>
-                        <p>{{order_detail.number_of_products}}</p>
-                    </td>
-                    <!--<td>{{ order_detail.total_money }}</td>-->
-                </tr>
-            </tbody>
-        </table>
-        <button class="btn btn-primary col-md-2" (click)="saveOrder()">Save</button>
+        <div class="action-buttons">
+            <button class="btn-secondary" (click)="goBack()">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </button>
+            <button class="btn-primary" (click)="saveOrder()" [disabled]="isSaving">
+                <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i> {{ isSaving ? 'Đang lưu...'
+                : 'Lưu thay đổi' }}
+            </button>
+        </div>
     </div>
+
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div class="alert alert-danger" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+    </div>
+
+    <div class="content-section">
+        <div class="order-grid">
+            <!-- Thông tin khách hàng -->
+            <div class="card customer-info">
+                <div class="card-header">
+                    <h2><i class="fas fa-user"></i> Thông tin khách hàng</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-label">Họ tên:</div>
+                        <div class="info-value">{{ orderResponse.fullname }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Số điện thoại:</div>
+                        <div class="info-value">{{ orderResponse.phone_number }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value">{{ orderResponse.email || 'Không có' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Địa chỉ:</div>
+                        <div class="info-value">{{ orderResponse.address }}</div>
+                    </div>
+                    <div class="info-row" *ngIf="orderResponse.user_id">
+                        <div class="info-label">ID Tài khoản:</div>
+                        <div class="info-value">{{ orderResponse.user_id }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thông tin đơn hàng -->
+            <div class="card order-info">
+                <div class="card-header">
+                    <h2><i class="fas fa-info-circle"></i> Thông tin đơn hàng</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-label">Mã đơn hàng:</div>
+                        <div class="info-value">#{{ orderResponse.id }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Ngày đặt:</div>
+                        <div class="info-value">{{ orderResponse.order_date | date:'dd/MM/yyyy HH:mm' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Ghi chú:</div>
+                        <div class="info-value note-text">{{ orderResponse.note || 'Không có ghi chú' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Tổng tiền:</div>
+                        <div class="info-value price">{{ orderResponse.total_money | currency:'VND':'symbol':'1.0-0' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vận chuyển & Thanh toán -->
+            <div class="card shipping-payment-info">
+                <div class="card-header">
+                    <h2><i class="fas fa-truck"></i> Vận chuyển & Thanh toán</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-label">Phương thức vận chuyển:</div>
+                        <div class="info-value">{{ orderResponse.shipping_method || 'Giao hàng tiêu chuẩn' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Địa chỉ giao hàng:</div>
+                        <div class="info-value">{{ orderResponse.shipping_address || orderResponse.address }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Ngày giao dự kiến:</div>
+                        <div class="info-value">{{ orderResponse.shipping_date | date:'dd/MM/yyyy' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Phương thức thanh toán:</div>
+                        <div class="info-value">{{ getPaymentMethodText(orderResponse.payment_method) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trạng thái đơn hàng -->
+            <div class="card status-info">
+                <div class="card-header">
+                    <h2><i class="fas fa-tasks"></i> Trạng thái đơn hàng</h2>
+                </div>
+                <div class="card-body">
+                    <div class="status-control">
+                        <label for="statusSelect">Cập nhật trạng thái:</label>
+                        <div class="select-wrapper">
+                            <select id="statusSelect" class="form-control" [(ngModel)]="orderResponse.status"
+                                (change)="onStatusChange()">
+                                <option value="pending">Chờ xác nhận</option>
+                                <option value="processing">Đang xử lý</option>
+                                <option value="shipped">Đang giao hàng</option>
+                                <option value="delivered">Đã giao hàng</option>
+                                <option value="cancelled">Đã hủy</option>
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+
+                    <div class="status-timeline">
+                        <div class="timeline-item"
+                            [ngClass]="{'active': isStatusActive('pending'), 'completed': isStatusCompleted('pending')}">
+                            <div class="timeline-icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Chờ xác nhận</div>
+                                <div class="timeline-date"
+                                    *ngIf="isStatusActive('pending') || isStatusCompleted('pending')">
+                                    {{ orderResponse.order_date | date:'dd/MM/yyyy' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-connector" [ngClass]="{'active': isStatusCompleted('pending')}"></div>
+
+                        <div class="timeline-item"
+                            [ngClass]="{'active': isStatusActive('processing'), 'completed': isStatusCompleted('processing')}">
+                            <div class="timeline-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Đang xử lý</div>
+                            </div>
+                        </div>
+                        <div class="timeline-connector" [ngClass]="{'active': isStatusCompleted('processing')}"></div>
+
+                        <div class="timeline-item"
+                            [ngClass]="{'active': isStatusActive('shipped'), 'completed': isStatusCompleted('shipped')}">
+                            <div class="timeline-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Đang giao hàng</div>
+                            </div>
+                        </div>
+                        <div class="timeline-connector" [ngClass]="{'active': isStatusCompleted('shipped')}"></div>
+
+                        <div class="timeline-item"
+                            [ngClass]="{'active': isStatusActive('delivered'), 'completed': isStatusCompleted('delivered')}">
+                            <div class="timeline-icon">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Đã giao hàng</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi tiết sản phẩm -->
+        <div class="card products-info">
+            <div class="card-header">
+                <h2><i class="fas fa-box"></i> Chi tiết sản phẩm</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                                <th>Ảnh</th>
+                                <th>Sản phẩm</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let orderDetail of orderResponse.order_details">
+                                <td class="price-column">{{ orderDetail.price | currency:'VND':'symbol':'1.0-0' }}</td>
+                                <td class="quantity-column">{{ orderDetail.number_of_products }}</td>
+                                <td class="total-column">{{ orderDetail.price * orderDetail.number_of_products |
+                                    currency:'VND':'symbol':'1.0-0' }}</td>
+                                <td class="image-column">
+                                    <img [src]="orderDetail.product.thumbnail" alt="Thumbnail"
+                                        class="product-thumbnail">
+                                </td>
+                                <td>
+                                    <div class="product-name">{{ orderDetail.product.name }}</div>
+                                    <div class="product-variant" *ngIf="orderDetail.color">
+                                        Màu: {{ orderDetail.color }}
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" class="text-right">Tổng cộng:</td>
+                                <td class="grand-total">{{ calculateTotalAmount() | currency:'VND':'symbol':'1.0-0' }}
+                                </td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xác nhận Thay đổi trạng thái -->
+<!-- <div class="modal" *ngIf="showStatusConfirmModal">
+    <div class="modal-backdrop" (click)="cancelStatusChange()"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Xác nhận thay đổi trạng thái</h2>
+                <button type="button" class="close" (click)="cancelStatusChange()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng từ
+                    <strong>{{ getStatusText(previousStatus) }}</strong> sang
+                    <strong>{{ getStatusText(orderResponse.status) }}</strong>?
+                </p>
+                <p class="note">Lưu ý: Hành động này sẽ được ghi nhận và không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="cancelStatusChange()">
+                    Hủy bỏ
+                </button>
+                <button type="button" class="btn-primary" (click)="confirmStatusChange()" [disabled]="isSaving">
+                    <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                    {{ isSaving ? 'Đang xử lý...' : 'Xác nhận' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div> -->

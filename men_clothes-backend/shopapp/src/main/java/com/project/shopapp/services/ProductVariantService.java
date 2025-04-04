@@ -1,5 +1,6 @@
 package com.project.shopapp.services;
 
+import com.project.shopapp.dtos.ImportStockDTO;
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductVariantsDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
@@ -135,4 +136,49 @@ public class ProductVariantService implements IProductVariantService {
 
     }
 
+    @Override
+    @Transactional
+    public ProductVariant importStock(ImportStockDTO importStockDTO) throws DataNotFoundException {
+        ProductVariant variant;
+
+        if (importStockDTO.getVariantId() != null) {
+            // Tìm theo ID biến thể
+            variant = productVariantRepository.findById(importStockDTO.getVariantId())
+                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy biến thể với id: " + importStockDTO.getVariantId()));
+        } else {
+            // Tìm theo product_id, color_id, size_id
+            variant = productVariantRepository
+                    .findByProductIdAndColorIdAndSizeId(
+                            importStockDTO.getProductId(),
+                            importStockDTO.getColorId(),
+                            importStockDTO.getSizeId())
+                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy biến thể phù hợp"));
+        }
+
+        // Cập nhật số lượng
+        Long currentQuantity = variant.getQuantity();
+        Long newQuantity = currentQuantity + importStockDTO.getAdditionalQuantity();
+        variant.setQuantity(newQuantity);
+
+        // Lưu lịch sử nhập hàng nếu cần
+        // saveImportHistory(variant, importStockDTO);
+
+        return productVariantRepository.save(variant);
+    }
+
+    @Override
+    @Transactional
+    public ProductVariant setQuantityToZero(Long variantId) throws DataNotFoundException {
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy biến thể với id: " + variantId));
+
+        variant.setQuantity(0L);
+        return productVariantRepository.save(variant);
+    }
+
+    // Phương thức lưu lịch sử nhập hàng (tùy chọn)
+    private void saveImportHistory(ProductVariant variant, ImportStockDTO importStockDTO) {
+        // Tạo và lưu lịch sử nhập hàng nếu cần
+        // Code xử lý lưu lịch sử
+    }
 }

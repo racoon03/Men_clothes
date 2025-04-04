@@ -1,81 +1,267 @@
-<div class="container-fluid">
-    <h1>Quản lý hóa đơn</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>User ID</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Address</th>
-                <th>Note</th>
-                <th>Order Date</th>
-                <th>Status</th>
-                <th>Total Money</th>
-                <!--
-            <th>Shipping Method</th>
-            <th>Shipping Address</th>
-            
-              <th>Shipping Date</th>
-            <th>Payment Method</th>
-            -->
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let order of orders">
-                <td>
-                    {{ order.id }}</td>
-                <td>{{ order.user_id }}</td>
-                <td>{{ order.fullname }}</td>
-                <td>{{ order.email }}</td>
-                <td>{{ order.phone_number }}</td>
-                <td>{{ order.address }}</td>
-                <td>{{ order.note }}</td>
-                <td>{{ order.order_date | date }}</td>
-                <td>{{ order.status }}</td>
-                <td>{{ order.total_money }}</td>
-                <!--
-            <td>{{ order.shipping_method }}</td>
-            <td>{{ order.shipping_address }}</td>
-            
-            <td>{{ order.shipping_date | date }}</td>
-            <td>{{ order.payment_method }}</td>
-            -->
-                <td>
-                    <div style="display: flex; gap: 10px;">
-                        <button (click)="viewDetails(order)" class="btn btn-primary" style="white-space: nowrap;">
-                            View Details
-                        </button>
-                        <button class="btn btn-danger" (click)="deleteOrder(order.id)">Delete</button>
-                    </div>
-                </td>
+<div class="orders-container">
+    <!-- Header Section with Title and Search -->
+    <div class="header-section">
+        <div class="title-area">
+            <p class="text-muted">Xem và quản lý tất cả đơn hàng trong hệ thống</p>
+        </div>
+        <div class="search-area">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" [(ngModel)]="keyword" placeholder="Tìm kiếm theo tên, email hoặc số điện thoại..."
+                    (keyup.enter)="searchOrders()">
+                <button class="btn-search" (click)="searchOrders()">Tìm kiếm</button>
+            </div>
+        </div>
+    </div>
 
-            </tr>
-        </tbody>
-    </table>
-    <div class="d-flex justify-content-center">
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <li class="page-item" *ngIf="currentPage > 1">
-                    <a class="page-link" (click)="onPageChange(1)">First</a>
-                </li>
-                <li class="page-item" *ngIf="currentPage > 1">
-                    <a class="page-link" (click)="onPageChange(currentPage - 1)">Previous</a>
-                </li>
-                <ng-container *ngFor="let page of visiblePages">
-                    <li class="page-item" [ngClass]="{'active': page === currentPage}">
-                        <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <div class="filter-card">
+            <div class="filter-header" (click)="toggleFilters()">
+                <h3>Bộ lọc</h3>
+                <i class="fas" [ngClass]="isFilterExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </div>
+            <div class="filter-body" [ngClass]="{'expanded': isFilterExpanded}">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Trạng thái đơn hàng</label>
+                        <select [(ngModel)]="statusFilter" class="form-control">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="pending">Chờ xử lý</option>
+                            <option value="processing">Đang xử lý</option>
+                            <option value="shipped">Đang giao hàng</option>
+                            <option value="delivered">Đã giao hàng</option>
+                            <option value="cancelled">Đã hủy</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Phương thức thanh toán</label>
+                        <select [(ngModel)]="paymentMethodFilter" class="form-control">
+                            <option value="">Tất cả phương thức</option>
+                            <option value="cod">Tiền mặt (COD)</option>
+                            <option value="vnpay">VNPay</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tháng</label>
+                        <select [(ngModel)]="monthFilter" class="form-control">
+                            <option value="">Tất cả tháng</option>
+                            <option *ngFor="let month of months" [value]="month.value">
+                                {{ month.label }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Năm</label>
+                        <select [(ngModel)]="yearFilter" class="form-control">
+                            <option value="">Tất cả năm</option>
+                            <option *ngFor="let year of years" [value]="year">
+                                {{ year }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Giá từ</label>
+                        <input type="number" [(ngModel)]="minPriceFilter" class="form-control" placeholder="0">
+                    </div>
+                    <div class="filter-group">
+                        <label>đến</label>
+                        <input type="number" [(ngModel)]="maxPriceFilter" class="form-control" placeholder="10,000,000">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn-reset" (click)="resetFilters()">
+                        <i class="fas fa-sync-alt"></i> Đặt lại
+                    </button>
+                    <button class="btn-apply" (click)="applyFilters()">
+                        <i class="fas fa-filter"></i> Áp dụng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+        <div class="stat-card">
+            <div class="stat-icon pending">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ pendingOrdersCount }}</h3>
+                <p>Chờ xử lý</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon processing">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ processingOrdersCount }}</h3>
+                <p>Đang xử lý</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon shipped">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ shippedOrdersCount }}</h3>
+                <p>Đang giao</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon completed">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ deliveredOrdersCount }}</h3>
+                <p>Hoàn thành</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon cancelled">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ cancelledOrdersCount }}</h3>
+                <p>Đã hủy</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Table Section -->
+    <div class="table-section" *ngIf="orders && orders.length > 0">
+        <div class="table-container">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Khách hàng</th>
+                        <th>Thông tin liên hệ</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Phương thức</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let order of orders" [ngClass]="{'highlight': order.id === selectedOrderId}">
+                        <td class="text-center">{{ order.id }}</td>
+                        <td>
+                            <div class="customer-info">
+                                <span class="customer-name">{{ order.fullname }}</span>
+                                <span class="customer-address text-muted">{{ order.address }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <span class="contact-phone">
+                                    <i class="fas fa-phone-alt"></i> {{ order.phone_number }}
+                                </span>
+                                <span class="contact-email text-muted">
+                                    <i class="fas fa-envelope"></i> {{ order.email }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>{{ order.order_date | date:'dd/MM/yyyy' }}</td>
+                        <td class="price-column">{{ order.total_money | currency:'VND':'symbol':'1.0-0' }}</td>
+                        <td>
+                            <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                                {{ getStatusText(order.status) }}
+                            </span>
+                        </td>
+                        <td>{{ getPaymentMethodText(order.payment_method) }}</td>
+                        <td class="actions-column">
+                            <button class="btn-action view" (click)="viewDetails(order)" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-action delete" (click)="confirmDelete(order.id)" title="Xóa đơn hàng">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="info-text">
+                Hiển thị {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage,
+                totalItems) }} của {{ totalItems }} đơn hàng
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === 1}">
+                        <a class="page-link" (click)="onPageChange(1)" aria-label="First">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
                     </li>
-                </ng-container>
-                <li class="page-item" *ngIf="currentPage < totalPages">
-                    <a class="page-link" (click)="onPageChange(currentPage + 1)">Next</a>
-                </li>
-                <li class="page-item" *ngIf="currentPage < totalPages">
-                    <a class="page-link" (click)="onPageChange(totalPages)">Last</a>
-                </li>
-            </ul>
-        </nav>
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === 1}">
+                        <a class="page-link" (click)="onPageChange(currentPage - 1)" aria-label="Previous">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    <ng-container *ngFor="let page of visiblePages">
+                        <li class="page-item" [ngClass]="{'active': page === currentPage}">
+                            <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+                        </li>
+                    </ng-container>
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === totalPages}">
+                        <a class="page-link" (click)="onPageChange(currentPage + 1)" aria-label="Next">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === totalPages}">
+                        <a class="page-link" (click)="onPageChange(totalPages)" aria-label="Last">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!orders || orders.length === 0">
+        <div class="empty-image">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h2>Không tìm thấy đơn hàng nào</h2>
+        <p>Không có đơn hàng nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
+        <button class="btn-reset-search" (click)="resetFilters()">
+            <i class="fas fa-sync-alt"></i> Đặt lại bộ lọc
+        </button>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" *ngIf="showDeleteModal">
+        <div class="modal-backdrop" (click)="cancelDelete()"></div>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="close" (click)="cancelDelete()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa đơn hàng #{{ orderIdToDelete }}?</p>
+                    <p class="text-danger">Hành động này không thể hoàn tác.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="cancelDelete()">
+                        Hủy
+                    </button>
+                    <button type="button" class="btn-confirm-delete" (click)="deleteOrder(orderIdToDelete)">
+                        Xóa đơn hàng
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

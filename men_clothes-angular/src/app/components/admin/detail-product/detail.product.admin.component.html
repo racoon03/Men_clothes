@@ -1,62 +1,299 @@
-<div class="container">
-    <div class="header-container">
-        <h1>Chi tiết sản phẩm</h1>
-        <ng-container ngbPopover="Màu, Kích cỡ" popoverTitle="Tùy chọn sản phẩm" triggers="click" [placement]="'bottom'">
-            <!-- Hiển thị chữ tùy chỉnh -->
-            <a class="nav-link" [ngbPopover]="popoverContent" (click)="togglePopover($event)">
-                Tùy chỉnh
-            </a>
-        
-            <!-- Nội dung Popover -->
-            <ng-template #popoverContent>
-                <div class="popover-list">
-                    <a class="popover-item" (click)="handleOptionClick(0)">Màu</a>
-                    <a class="popover-item" (click)="handleOptionClick(1)">Kích cỡ</a>
-                </div>
-            </ng-template>
-        </ng-container>
-        <button *ngIf="canAddImage()" class="btn btn-primary">Thêm ảnh</button>
+<div class="card variant-form-card mt-3" *ngIf="showAddVariantForm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Thêm biến thể mới</h5>
+        <button type="button" class="btn-close" (click)="toggleAddVariantForm()"></button>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="product-details">
-                <!-- Icon chỉnh sửa -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h4>Thông tin sản phẩm</h4>
-                    <i *ngIf="!isEditing" class="fas fa-edit edit-icon" (click)="toggleEdit()"></i>
-                    <i *ngIf="isEditing" class="fas fa-save save-icon" (click)="saveChanges()"></i>
-                    <i *ngIf="isEditing" class="fas fa-times cancel-icon" (click)="cancelEdit()"></i>
-                </div>
-        
-                <p *ngIf="!isEditing"><strong>ID:</strong> {{ productResponse.id }}</p>
-        
-                <p *ngIf="!isEditing"><strong>Product Name:</strong> {{ productResponse.name }}</p>
-                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.name" class="form-control">
-        
-                <p *ngIf="!isEditing"><strong>Price:</strong> {{ productResponse.price | currency:'VND' }}</p>
-                <input *ngIf="isEditing" type="number" [(ngModel)]="productResponse.price" class="form-control">
-        
-                <p *ngIf="!isEditing"><strong>Description:</strong> {{ productResponse.description }}</p>
-                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.description" class="form-control">
-        
-                <p *ngIf="!isEditing"><strong>Category:</strong> {{ productResponse.category.name }}</p>
-                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.category.name" class="form-control">
-        
-                <p *ngIf="!isEditing"><strong>Color:</strong> {{ productResponse.color.name }}</p>
-                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.color.name" class="form-control">
-        
-                <p *ngIf="!isEditing"><strong>Size:</strong> {{ productResponse.size.name }}</p>
-                <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.size.name" class="form-control">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Màu sắc</label>
+                <select class="form-select" [(ngModel)]="newVariant.colorId">
+                    <option [ngValue]="null">Chọn màu</option>
+                    <option *ngFor="let color of colors" [ngValue]="color.id">{{ color.name }}</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Kích cỡ</label>
+                <select class="form-select" [(ngModel)]="newVariant.sizeId">
+                    <option [ngValue]="null">Chọn kích cỡ</option>
+                    <option *ngFor="let size of sizes" [ngValue]="size.id">{{ size.name }}</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Số lượng</label>
+                <input type="number" class="form-control" [(ngModel)]="newVariant.quantity" min="1">
             </div>
         </div>
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-primary w-100" (click)="saveVariant()">Lưu biến thể</button>
+    </div>
+</div>
+<div class="container-fluid main-container">
+    <!-- Header with actions -->
+    <div class="header-container">
+        <div class="title-section">
+            <h1><i class="fas fa-box-open me-2"></i>Chi tiết sản phẩm</h1>
+            <p class="text-muted">Quản lý chi tiết và thuộc tính sản phẩm</p>
+        </div>
+        <div class="action-buttons">
+            <!-- <ng-container ngbPopover="Quản lý thuộc tính" popoverTitle="Tùy chọn sản phẩm" triggers="manual"
+                [placement]="'bottom'" #p="ngbPopover">
+                <button class="btn btn-outline-primary me-2" (click)="p.toggle()">
+                    <i class="fas fa-cog me-1"></i> Tùy chỉnh
+                </button>
 
-        <div class="col-md-8">
-            <div class="image-container">
-                <div *ngFor="let image of product?.product_images" class="image-item">
-                    <img [src]="image.image_url" class="product-image" alt="Product Image">
+                
+                <ng-template #popoverContent>
+                    <div class="popover-list">
+                        <a class="popover-item" (click)="handleOptionClick(0); p.close()">Quản lý màu sắc</a>
+                        <a class="popover-item" (click)="handleOptionClick(1); p.close()">Quản lý kích cỡ</a>
+                        <a class="popover-item" (click)="handleOptionClick(2); p.close()">Quản lý biến thể</a>
+                    </div>
+                </ng-template>
+            </ng-container> -->
+
+            <button *ngIf="canAddImage()" (click)="openFileSelector()" class="btn btn-success">
+                <i class="fas fa-image me-1"></i> Thêm ảnh
+            </button>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="row">
+            <!-- Product information card -->
+            <div class="col-md-5">
+                <div class="card product-info-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Thông tin cơ bản</h4>
+                        <div class="edit-controls">
+                            <button *ngIf="!isEditing" class="btn btn-sm btn-primary" (click)="toggleEdit()">
+                                <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                            </button>
+                            <div *ngIf="isEditing" class="btn-group">
+                                <button class="btn btn-sm btn-success" (click)="saveChanges()">
+                                    <i class="fas fa-save me-1"></i> Lưu
+                                </button>
+                                <button class="btn btn-sm btn-secondary" (click)="cancelEdit()">
+                                    <i class="fas fa-times me-1"></i> Hủy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="product-detail-item">
+                            <label class="detail-label">ID:</label>
+                            <span class="detail-value">{{ productResponse.id }}</span>
+                        </div>
+
+                        <div class="product-detail-item">
+                            <label class="detail-label">Tên sản phẩm:</label>
+                            <div *ngIf="!isEditing" class="detail-value">{{ productResponse.name }}</div>
+                            <input *ngIf="isEditing" type="text" [(ngModel)]="productResponse.name" class="form-control"
+                                placeholder="Nhập tên sản phẩm">
+                        </div>
+
+                        <div class="product-detail-item">
+                            <label class="detail-label">Giá bán:</label>
+                            <div *ngIf="!isEditing" class="detail-value price-value">{{ productResponse.price |
+                                number:'1.0-0' }}đ</div>
+                            <input *ngIf="isEditing" type="number" [(ngModel)]="productResponse.price"
+                                class="form-control" placeholder="Nhập giá sản phẩm">
+                        </div>
+
+                        <div class="product-detail-item description-item">
+                            <label class="detail-label">Mô tả sản phẩm:</label>
+                            <div *ngIf="!isEditing" class="detail-value description-value">{{
+                                productResponse.description || 'Chưa có mô tả' }}</div>
+                            <textarea *ngIf="isEditing" [(ngModel)]="productResponse.description" class="form-control"
+                                rows="3" placeholder="Nhập mô tả sản phẩm"></textarea>
+                        </div>
+
+                        <div class="product-detail-item">
+                            <label class="detail-label">Danh mục:</label>
+                            <div *ngIf="!isEditing" class="detail-value">{{ productResponse.category.name }}</div>
+                            <select *ngIf="isEditing" [(ngModel)]="productResponse.category.id" class="form-control">
+                                <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="product-detail-item">
+                            <label class="detail-label">Trạng thái:</label>
+                            <span class="detail-value status-badge active">Đang bán</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Variants Card -->
+                <div class="card product-variants-card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Biến thể sản phẩm</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover variant-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Màu sắc</th>
+                                        <th>Mẫu</th>
+                                        <th>Kích cỡ</th>
+                                        <th>Số lượng</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let variant of productVariants">
+                                        <td>
+                                            <div class="color-badge"
+                                                [ngClass]="{'color-white': getColorName(variant) === 'Trắng'}"
+                                                [ngStyle]="{'background-color': getColorCode(getColorName(variant))}">
+                                                {{ getColorName(variant) }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="color-circle" [ngStyle]="{'background-color': getColorCode(getColorName(variant))}"
+                                                [ngClass]="{'white-color': getColorName(variant) === 'Trắng'}">
+                                            </div>
+                                        </td>
+                                        <td>{{ getSizeName(variant) }}</td>
+                                        <td>{{ variant.quantity }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-success me-1 mb-2" (click)="openImportForm(variant)">
+                                                <i class="fas fa-plus-circle"></i> Nhập hàng
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger mb-2" (click)="softDeleteVariant(variant)">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="!productVariants || productVariants.length === 0">
+                                        <td colspan="4" class="text-center py-3">
+                                            <em>Chưa có biến thể sản phẩm</em>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button class="btn btn-primary" (click)="toggleAddVariantForm()">
+                                <i class="fas fa-plus me-1"></i> Thêm biến thể
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product images section -->
+            <div class="col-md-7">
+                <div class="card product-images-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Hình ảnh sản phẩm</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="images-container">
+                            <div *ngIf="product && product.product_images && product.product_images.length > 0"
+                                class="product-images-grid">
+                                <div *ngFor="let image of product.product_images; let i = index" class="image-item">
+                                    <div class="image-wrapper">
+                                        <img [src]="image.image_url" class="product-image"
+                                            [alt]="'Ảnh sản phẩm ' + (i+1)">
+                                        <div class="image-overlay">
+                                            <div class="image-actions">
+                                                <button class="btn btn-light btn-sm"><i
+                                                        class="fas fa-search-plus"></i></button>
+                                                <button class="btn btn-danger btn-sm"><i
+                                                        class="fas fa-trash-alt"></i></button>
+                                            </div>
+                                            <div class="image-badge" *ngIf="i === 0">Ảnh chính</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="!product || !product.product_images || product.product_images.length === 0"
+                                class="no-images">
+                                <i class="fas fa-images"></i>
+                                <p>Chưa có hình ảnh nào</p>
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-upload me-1"></i> Tải ảnh lên
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Statistics Card -->
+                <div class="card sales-card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Thống kê bán hàng</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <i class="fas fa-shopping-cart stat-icon"></i>
+                                    <div class="stat-details">
+                                        <div class="stat-details">
+                                            <h5 class="stat-value">{{ soldCount }}</h5>
+                                            <p class="stat-label">Đã bán</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <i class="fas fa-ban stat-icon"></i>
+                                    <div class="stat-details">
+                                        <h5 class="stat-value">{{ cancelledCount }}</h5>
+                                        <p class="stat-label">Đã hủy</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <i class="fas fa-box stat-icon"></i>
+                                    <div class="stat-details">
+                                        <h5 class="stat-value">{{ totalStock }}</h5>
+                                        <p class="stat-label">Tồn kho</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Thêm biểu đồ cột -->
+                        <div class="chart-container mt-4">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- Form Nhập Hàng -->
+                <div class="card import-form-card mt-3" *ngIf="showImportForm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Nhập hàng</h5>
+                        <button type="button" class="btn-close" (click)="toggleImportForm()"></button>
+                    </div>
+                    <div class="card-body">
+                        <div class="variant-info mb-3">
+                            <p class="mb-1"><strong>Sản phẩm:</strong> {{ productResponse.name }}</p>
+                            <p class="mb-1"><strong>Màu sắc:</strong> {{ currentVariant?.color?.name || 'N/A' }}</p>
+                            <p class="mb-1"><strong>Kích cỡ:</strong> {{ currentVariant?.size?.name || 'N/A' }}</p>
+                            <p class="mb-1"><strong>Số lượng hiện tại:</strong> {{ currentVariant?.quantity || 0 }}</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số lượng nhập thêm</label>
+                                <input type="number" class="form-control" [(ngModel)]="importQuantity" min="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ghi chú (tùy chọn)</label>
+                                <input type="text" class="form-control" [(ngModel)]="importNote" placeholder="Nhập ghi chú...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary w-100" (click)="importStock()">Xác nhận nhập hàng</button>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>

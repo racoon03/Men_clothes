@@ -25,4 +25,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // tim theo user co phan trang theo ngay moi nhat
     Page<Order> findByUserIdOrderByOrderDateDesc(Long userId, Pageable pageable);
+    List<Order> findByStatusNotAndActive(String status, boolean active);
+    List<Order> findByStatusAndActive(String status, boolean active);
 }

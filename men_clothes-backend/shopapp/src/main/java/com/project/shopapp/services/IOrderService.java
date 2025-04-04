@@ -20,4 +20,11 @@ public interface IOrderService {
 
     // cancel don hang
     void updateOrderStatus(Long id, String status) throws DataNotFoundException;
+
+    Page<Order> getOrdersWithFilters(String keyword, String status, String paymentMethod,
+                                     Integer month, Integer year, Float minPrice, Float maxPrice,
+                                     Pageable pageable);
+
+    int countSoldProductsByProductId(Long productId);
+    int countCancelledProductsByProductId(Long productId);
 }

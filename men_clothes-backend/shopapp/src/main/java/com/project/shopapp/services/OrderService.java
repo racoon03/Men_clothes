@@ -6,19 +6,18 @@ import com.project.shopapp.dtos.ProductVariantsDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.*;
 import com.project.shopapp.repositories.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 @Service
 @RequiredArgsConstructor
 
@@ -29,6 +28,8 @@ public class OrderService implements IOrderService{
     private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper;
     private final ProductVariantService productVariantService;
+    @PersistenceContext
+    private EntityManager entityManager;
     @Override
     @Transactional
     public Order createOrder(OrderDTO orderDTO) throws Exception {
@@ -176,6 +177,121 @@ public class OrderService implements IOrderService{
 
         order.setStatus(status);
         orderRepository.save(order);
+    }
+
+    // loc du lieu
+    @Override
+    public Page<Order> getOrdersWithFilters(String keyword, String status, String paymentMethod,
+                                            Integer month, Integer year, Float minPrice, Float maxPrice,
+                                            Pageable pageable) {
+
+        // Chuỗi query động để tạo các điều kiện lọc
+        StringBuilder queryBuilder = new StringBuilder("SELECT o FROM Order o WHERE o.active = true");
+        Map<String, Object> parameters = new HashMap<>();
+
+        // Lọc theo keyword
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            queryBuilder.append(" AND (o.fullName LIKE :keyword OR o.email LIKE :keyword OR o.phoneNumber LIKE :keyword OR o.address LIKE :keyword)");
+            parameters.put("keyword", "%" + keyword + "%");
+        }
+
+        // Lọc theo trạng thái đơn hàng
+        if (status != null && !status.trim().isEmpty()) {
+            queryBuilder.append(" AND o.status = :status");
+            parameters.put("status", status);
+        }
+
+        // Lọc theo phương thức thanh toán
+        if (paymentMethod != null && !paymentMethod.trim().isEmpty()) {
+            queryBuilder.append(" AND o.paymentMethod = :paymentMethod");
+            parameters.put("paymentMethod", paymentMethod);
+        }
+
+        // Lọc theo tháng
+        if (month != null && month > 0 && month <= 12) {
+            queryBuilder.append(" AND MONTH(o.orderDate) = :month");
+            parameters.put("month", month);
+        }
+
+        // Lọc theo năm
+        if (year != null && year > 0) {
+            queryBuilder.append(" AND YEAR(o.orderDate) = :year");
+            parameters.put("year", year);
+        }
+
+        // Lọc theo giá tối thiểu
+        if (minPrice != null && minPrice > 0) {
+            queryBuilder.append(" AND o.totalMoney >= :minPrice");
+            parameters.put("minPrice", minPrice);
+        }
+
+        // Lọc theo giá tối đa
+        if (maxPrice != null && maxPrice > 0) {
+            queryBuilder.append(" AND o.totalMoney <= :maxPrice");
+            parameters.put("maxPrice", maxPrice);
+        }
+
+        // Tạo truy vấn
+        TypedQuery<Order> query = entityManager.createQuery(queryBuilder.toString(), Order.class);
+
+        // Thiết lập tham số
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        // Đếm tổng số kết quả
+        TypedQuery<Long> countQuery = entityManager.createQuery(
+                queryBuilder.toString().replace("SELECT o", "SELECT COUNT(o)"), Long.class);
+
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            countQuery.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        Long total = countQuery.getSingleResult();
+
+        // Thiết lập phân trang
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+
+        // Trả về trang kết quả
+        List<Order> orders = query.getResultList();
+        return new PageImpl<>(orders, pageable, total);
+    }
+
+    /**
+     * Đếm số lượng sản phẩm đã bán (đơn hàng thành công)
+     */
+    public int countSoldProductsByProductId(Long productId) {
+        List<Order> orders = orderRepository.findByStatusNotAndActive("cancelled", true);
+        int count = 0;
+
+        for (Order order : orders) {
+            for (OrderDetail detail : order.getOrderDetails()) {
+                if (detail.getProduct().getId().equals(productId)) {
+                    count += detail.getNumberOfProducts();
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Đếm số lượng sản phẩm đã hủy
+     */
+    public int countCancelledProductsByProductId(Long productId) {
+        List<Order> orders = orderRepository.findByStatusAndActive("cancelled", true);
+        int count = 0;
+
+        for (Order order : orders) {
+            for (OrderDetail detail : order.getOrderDetails()) {
+                if (detail.getProduct().getId().equals(productId)) {
+                    count += detail.getNumberOfProducts();
+                }
+            }
+        }
+
+        return count;
     }
 
 }

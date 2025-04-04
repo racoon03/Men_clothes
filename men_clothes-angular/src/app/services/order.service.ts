@@ -14,6 +14,7 @@ import { CartItem } from '../models/cart.item';
 export class OrderService {
   private apiUrl = `${environment.apiBaseUrl}/orders`;
   private apiGetAllOrders = `${environment.apiBaseUrl}/orders/get-orders-by-keyword`;
+  private apiFilterOrders = `${environment.apiBaseUrl}/orders/find-orders-keyword`;
   // Phí vận chuyển mặc định
   private expressShippingCost: number = 30000; // 30,000 VND
   private normalShippingCost: number = 15000; // 15,000 VND
@@ -232,6 +233,52 @@ export class OrderService {
    */
   calculateTotal(subtotal: number, shippingCost: number, discountAmount: number): number {
     return subtotal + shippingCost - discountAmount;
+  }
+
+  // order admin
+  // Phương thức mới - sử dụng bộ lọc
+  getFilteredOrders(
+    keyword: string,
+    page: number, 
+    limit: number,
+    status?: string,
+    paymentMethod?: string,
+    month?: number,
+    year?: number,
+    minPrice?: number,
+    maxPrice?: number
+  ): Observable<any> {
+    let params = new HttpParams()
+      .set('keyword', keyword || '')
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+      
+    if (status && status.trim() !== '') params = params.set('status', status);
+    if (paymentMethod && paymentMethod.trim() !== '') params = params.set('paymentMethod', paymentMethod);
+    if (month && month > 0) params = params.set('month', month.toString());
+    if (year && year > 0) params = params.set('year', year.toString());
+    if (minPrice && minPrice > 0) params = params.set('minPrice', minPrice.toString());
+    if (maxPrice && maxPrice > 0) params = params.set('maxPrice', maxPrice.toString());
+      
+    return this.http.get<any>(this.apiFilterOrders, { params });
+  }
+
+  /**
+   * Counts completed orders (not cancelled) for a specific product
+   * @param productId - Product ID to check
+   * @returns Observable with count of completed orders
+   */
+  getProductSoldCount(productId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/stats/product/${productId}/sold`);
+  }
+  
+  /**
+   * Counts cancelled orders for a specific product
+   * @param productId - Product ID to check
+   * @returns Observable with count of cancelled orders
+   */
+  getProductCancelledCount(productId: number): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/stats/product/${productId}/cancelled`);
   }
   
 }

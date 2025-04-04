@@ -1,0 +1,523 @@
+// Variables
+$primary-color: #4e73df;
+$success-color: #1cc88a;
+$info-color: #36b9cc;
+$warning-color: #f6c23e;
+$danger-color: #e74a3b;
+$light-color: #f8f9fc;
+$dark-color: #5a5c69;
+$card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+$transition-speed: 0.3s;
+
+// Container styles
+.order-detail-container {
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+// Header section
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    .title-area {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: $dark-color;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+
+            &.pending {
+                background-color: rgba($warning-color, 0.15);
+                color: darken($warning-color, 20%);
+            }
+
+            &.processing {
+                background-color: rgba($info-color, 0.15);
+                color: darken($info-color, 20%);
+            }
+
+            &.shipped {
+                background-color: rgba($primary-color, 0.15);
+                color: darken($primary-color, 10%);
+            }
+
+            &.delivered {
+                background-color: rgba($success-color, 0.15);
+                color: darken($success-color, 15%);
+            }
+
+            &.cancelled {
+                background-color: rgba($danger-color, 0.15);
+                color: darken($danger-color, 15%);
+            }
+        }
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all $transition-speed ease;
+            display: flex;
+            align-items: center;
+            border: none;
+
+            i {
+                margin-right: 0.5rem;
+            }
+
+            &.btn-primary {
+                background-color: $primary-color;
+                color: white;
+
+                &:hover {
+                    background-color: darken($primary-color, 10%);
+                }
+            }
+
+            &.btn-secondary {
+                background-color: $light-color;
+                color: $dark-color;
+                border: 1px solid #ddd;
+
+                &:hover {
+                    background-color: darken($light-color, 5%);
+                }
+            }
+        }
+    }
+}
+
+// Content section
+.content-section {
+    .order-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+
+        @media (max-width: 992px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: $card-shadow;
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            background-color: $light-color;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+
+            h2 {
+                margin: 0;
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: $dark-color;
+
+                i {
+                    margin-right: 0.5rem;
+                    color: $primary-color;
+                }
+            }
+        }
+
+        .card-body {
+            padding: 1.5rem;
+
+            .info-row {
+                display: flex;
+                margin-bottom: 1rem;
+                align-items: flex-start;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .info-label {
+                    width: 35%;
+                    color: $dark-color;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    padding-right: 1rem;
+                }
+
+                .info-value {
+                    width: 65%;
+                    font-size: 0.95rem;
+                    color: #555;
+
+                    &.price {
+                        font-weight: 600;
+                        color: $primary-color;
+                    }
+
+                    &.note-text {
+                        font-style: italic;
+                        color: #777;
+                    }
+                }
+            }
+        }
+    }
+
+    // Status timeline styling
+    .status-timeline {
+        display: flex;
+        flex-direction: column;
+        margin-top: 2rem;
+        position: relative;
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 1.5rem;
+            position: relative;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .timeline-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: #eee;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                color: #999;
+                z-index: 2;
+                transition: all $transition-speed ease;
+                margin-right: 1rem;
+            }
+
+            .timeline-content {
+                flex: 1;
+
+                .timeline-title {
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    color: #888;
+                }
+
+                .timeline-date {
+                    font-size: 0.85rem;
+                    color: #999;
+                    margin-top: 0.25rem;
+                }
+            }
+
+            &.active {
+                .timeline-icon {
+                    background-color: $primary-color;
+                    color: white;
+                }
+
+                .timeline-title {
+                    color: $primary-color;
+                    font-weight: 700;
+                }
+
+                .timeline-date {
+                    color: #666;
+                }
+            }
+
+            &.completed {
+                .timeline-icon {
+                    background-color: $success-color;
+                    color: white;
+                }
+
+                .timeline-title {
+                    color: $success-color;
+                }
+            }
+        }
+
+        .timeline-connector {
+            position: absolute;
+            top: 0;
+            left: 20px;
+            width: 2px;
+            height: 100%;
+            background-color: #eee;
+            z-index: 1;
+            transform: translateX(-50%);
+
+            &.active {
+                background-color: $success-color;
+            }
+        }
+    }
+
+    // Select wrapper
+    .select-wrapper {
+        position: relative;
+        margin-top: 0.5rem;
+
+        select {
+            appearance: none;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 0.95rem;
+            color: $dark-color;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-color;
+                box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+            }
+        }
+
+        i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #777;
+        }
+    }
+
+    // Products table
+    .products-info {
+        margin-top: 1rem;
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+
+            th,
+            td {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }
+
+            th {
+                background-color: $light-color;
+                font-weight: 600;
+                color: $dark-color;
+                font-size: 0.875rem;
+            }
+
+            .image-column {
+                width: 80px;
+            }
+
+            .price-column,
+            .quantity-column,
+            .total-column {
+                text-align: left;
+            }
+
+            .product-thumbnail {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 4px;
+                border: 1px solid #eee;
+            }
+
+            .product-name {
+                font-weight: 600;
+                color: $dark-color;
+                margin-bottom: 0.25rem;
+            }
+
+            .product-variant {
+                font-size: 0.85rem;
+                color: #777;
+            }
+
+            tfoot tr {
+                background-color: $light-color;
+
+                td {
+                    padding: 1rem;
+                    font-weight: 600;
+                }
+
+                .text-right {
+                    text-align: right;
+                }
+
+                .grand-total {
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    color: $primary-color;
+                    text-align: right;
+                }
+            }
+        }
+    }
+}
+
+// Modal styles
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+
+    .modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-dialog {
+        width: 100%;
+        max-width: 500px;
+        position: relative;
+        z-index: 1010;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .modal-content {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        background-color: $light-color;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            color: $dark-color;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: #777;
+            cursor: pointer;
+
+            &:hover {
+                color: $danger-color;
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+
+        p {
+            margin: 0 0 1rem;
+            color: #555;
+
+            strong {
+                color: $dark-color;
+            }
+
+            &.note {
+                font-size: 0.875rem;
+                color: $danger-color;
+                font-style: italic;
+                margin-top: 1rem;
+            }
+        }
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+
+            &.btn-primary {
+                background-color: $primary-color;
+                color: white;
+
+                &:hover {
+                    background-color: darken($primary-color, 10%);
+                }
+            }
+
+            &.btn-secondary {
+                background-color: $light-color;
+                color: $dark-color;
+                border: 1px solid #ddd;
+
+                &:hover {
+                    background-color: darken($light-color, 5%);
+                }
+            }
+        }
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

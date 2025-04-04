@@ -215,7 +215,8 @@ public class ProductController {
             return ResponseEntity.ok(String.format("Product with id = %d deleted successfully", id));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }    }
+        }
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(

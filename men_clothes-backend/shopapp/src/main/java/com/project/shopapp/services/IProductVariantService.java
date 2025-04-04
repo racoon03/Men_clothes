@@ -1,7 +1,9 @@
 package com.project.shopapp.services;
 
+import com.project.shopapp.dtos.ImportStockDTO;
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductVariantsDTO;
+import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.Color;
 import com.project.shopapp.models.Product;
 import com.project.shopapp.models.ProductVariant;
@@ -23,4 +25,6 @@ public interface IProductVariantService {
              ProductVariantsDTO productVariantsDTO
      ) throws Exception;
 
+    ProductVariant importStock(ImportStockDTO importStockDTO) throws DataNotFoundException;
+    ProductVariant setQuantityToZero(Long variantId) throws DataNotFoundException;
 }

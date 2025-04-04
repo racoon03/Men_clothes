@@ -1,5 +1,6 @@
 package com.project.shopapp.controllers;
 
+import com.project.shopapp.dtos.ImportStockDTO;
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductVariantsDTO;
 import com.project.shopapp.models.Color;
@@ -79,6 +80,26 @@ public class ProductVariantController {
         try {
             List<Color> colors = productVariantService.getColorsByProductId(productId);
             return ResponseEntity.ok(colors);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<?> importStock(@Valid @RequestBody ImportStockDTO importStockDTO) {
+        try {
+            ProductVariant updatedVariant = productVariantService.importStock(importStockDTO);
+            return ResponseEntity.ok(updatedVariant);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/set-zero")
+    public ResponseEntity<?> setQuantityToZero(@PathVariable Long id) {
+        try {
+            ProductVariant updatedVariant = productVariantService.setQuantityToZero(id);
+            return ResponseEntity.ok(updatedVariant);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

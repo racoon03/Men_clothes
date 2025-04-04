@@ -8,6 +8,9 @@ export interface Product {
     category_id: number;
     url: string; 
     product_images: ProductImage[];
+  
+    createdAt?: any;     // Thời gian tạo
+    updatedAt?: any;     // Thời gian cập nhật
 
      // Thuộc tính UI bổ sung
     discount?: number;           // Phần trăm giảm giá

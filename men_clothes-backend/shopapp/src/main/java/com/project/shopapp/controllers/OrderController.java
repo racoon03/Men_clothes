@@ -158,4 +158,49 @@ public class OrderController {
             );
         }
     }
+
+    @GetMapping("/find-orders-keyword")
+    public ResponseEntity<OrderListResponse> findOrdersByKeyword(
+            @RequestParam(defaultValue = "", required = false) String keyword,
+            @RequestParam(defaultValue = "", required = false) String status,
+            @RequestParam(defaultValue = "", required = false) String paymentMethod,
+            @RequestParam(defaultValue = "", required = false) Integer month,
+            @RequestParam(defaultValue = "", required = false) Integer year,
+            @RequestParam(defaultValue = "0", required = false) Float minPrice,
+            @RequestParam(defaultValue = "0", required = false) Float maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        // Tạo Pageable từ thông tin trang và giới hạn
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("id").ascending()
+        );
+
+        Page<OrderResponse> orderPage = orderService
+                .getOrdersWithFilters(keyword, status, paymentMethod, month, year, minPrice, maxPrice, pageRequest)
+                .map(OrderResponse::fromOrder);
+
+        // Lấy tổng số trang
+        int totalPages = orderPage.getTotalPages();
+        List<OrderResponse> orderResponses = orderPage.getContent();
+
+        return ResponseEntity.ok(OrderListResponse
+                .builder()
+                .orders(orderResponses)
+                .totalPages(totalPages)
+                .build());
+    }
+
+    @GetMapping("/stats/product/{productId}/sold")
+    public ResponseEntity<Integer> getProductSoldCount(@PathVariable Long productId) {
+        int count = orderService.countSoldProductsByProductId(productId);
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/stats/product/{productId}/cancelled")
+    public ResponseEntity<Integer> getProductCancelledCount(@PathVariable Long productId) {
+        int count = orderService.countCancelledProductsByProductId(productId);
+        return ResponseEntity.ok(count);
+    }
 }
