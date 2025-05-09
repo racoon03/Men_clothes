@@ -206,9 +206,6 @@
                                 </td>
                                 <td>
                                     <div class="product-name">{{ orderDetail.product.name }}</div>
-                                    <div class="product-variant" *ngIf="orderDetail.color">
-                                        Màu: {{ orderDetail.color }}
-                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -227,33 +224,3 @@
     </div>
 </div>
 
-<!-- Modal Xác nhận Thay đổi trạng thái -->
-<!-- <div class="modal" *ngIf="showStatusConfirmModal">
-    <div class="modal-backdrop" (click)="cancelStatusChange()"></div>
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Xác nhận thay đổi trạng thái</h2>
-                <button type="button" class="close" (click)="cancelStatusChange()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng từ
-                    <strong>{{ getStatusText(previousStatus) }}</strong> sang
-                    <strong>{{ getStatusText(orderResponse.status) }}</strong>?
-                </p>
-                <p class="note">Lưu ý: Hành động này sẽ được ghi nhận và không thể hoàn tác.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="cancelStatusChange()">
-                    Hủy bỏ
-                </button>
-                <button type="button" class="btn-primary" (click)="confirmStatusChange()" [disabled]="isSaving">
-                    <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                    {{ isSaving ? 'Đang xử lý...' : 'Xác nhận' }}
-                </button>
-            </div>
-        </div>
-    </div>
-</div> -->

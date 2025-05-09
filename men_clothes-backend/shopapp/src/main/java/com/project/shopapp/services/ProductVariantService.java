@@ -5,14 +5,13 @@ import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductVariantsDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.*;
-import com.project.shopapp.repositories.ColorRepository;
-import com.project.shopapp.repositories.ProductRepository;
-import com.project.shopapp.repositories.ProductVariantRepository;
-import com.project.shopapp.repositories.SizeRepository;
+import com.project.shopapp.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,7 @@ public class ProductVariantService implements IProductVariantService {
     private final SizeRepository sizeRepository;
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final StockImportHistoryRepository stockImportHistoryRepository;
     @Override
     public ProductVariant createProduct(ProductVariantsDTO productVariantsDTO) throws Exception {
         Color existingColor = colorRepository
@@ -139,32 +139,50 @@ public class ProductVariantService implements IProductVariantService {
     @Override
     @Transactional
     public ProductVariant importStock(ImportStockDTO importStockDTO) throws DataNotFoundException {
+        // Find product variant
         ProductVariant variant;
-
         if (importStockDTO.getVariantId() != null) {
-            // Tìm theo ID biến thể
+            // Find by variant ID if provided
             variant = productVariantRepository.findById(importStockDTO.getVariantId())
-                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy biến thể với id: " + importStockDTO.getVariantId()));
+                    .orElseThrow(() -> new DataNotFoundException("Cannot find variant with id: " + importStockDTO.getVariantId()));
         } else {
-            // Tìm theo product_id, color_id, size_id
+            // Find by product ID, color ID, and size ID
             variant = productVariantRepository
                     .findByProductIdAndColorIdAndSizeId(
                             importStockDTO.getProductId(),
                             importStockDTO.getColorId(),
                             importStockDTO.getSizeId())
-                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy biến thể phù hợp"));
+                    .orElseThrow(() -> new DataNotFoundException("Cannot find matching variant"));
         }
 
-        // Cập nhật số lượng
+        // Find product and its related entities
+        Product product = variant.getProduct();
+        Color color = variant.getColor();
+        Size size = variant.getSize();
+
+        // Update variant quantity
         Long currentQuantity = variant.getQuantity();
         Long newQuantity = currentQuantity + importStockDTO.getAdditionalQuantity();
         variant.setQuantity(newQuantity);
 
-        // Lưu lịch sử nhập hàng nếu cần
-        // saveImportHistory(variant, importStockDTO);
+        // Create import history record
+        StockImportHistory importHistory = StockImportHistory.builder()
+                .productVariant(variant)
+                .product(product)
+                .color(color)
+                .size(size)
+                .quantity(importStockDTO.getAdditionalQuantity())
+                .importPrice(importStockDTO.getImportPrice())
+                .importDate((importStockDTO.getImportDate() != null ? importStockDTO.getImportDate() : LocalDate.now()).atStartOfDay())
+                .supplier(importStockDTO.getSupplier())
+                .notes(importStockDTO.getNote())
+                .build();
 
+        // Save both records
+        stockImportHistoryRepository.save(importHistory);
         return productVariantRepository.save(variant);
     }
+
 
     @Override
     @Transactional
@@ -181,4 +199,15 @@ public class ProductVariantService implements IProductVariantService {
         // Tạo và lưu lịch sử nhập hàng nếu cần
         // Code xử lý lưu lịch sử
     }
+
+
+
+
+//    @Override
+//    public List<StockImportHistory> getImportHistoryByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+//        return stockImportHistoryRepository.findByImportDateBetweenOrderByImportDateDesc(startDate, endDate);
+//    }
+
+
+
 }

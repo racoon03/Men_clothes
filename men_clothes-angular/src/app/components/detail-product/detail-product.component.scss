@@ -351,7 +351,158 @@
         }
     }
 }
+/* Phần đánh giá và bình luận */
+.product-reviews {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
 
+    .section-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: #333;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    /* Form thêm bình luận */
+    .comment-form {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+        h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.2s;
+
+            &:focus {
+                border-color: #4a90e2;
+                outline: none;
+            }
+        }
+
+        .btn-post-comment {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+
+            &:hover {
+                background-color: #3a7bc8;
+            }
+        }
+    }
+
+    /* Thông báo đăng nhập */
+    .login-to-comment {
+        text-align: center;
+        padding: 15px;
+        margin-bottom: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+        a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 500;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    /* Danh sách bình luận */
+    .comments-list {
+        h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .loading-comments {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .no-comments {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            color: #666;
+        }
+
+        .comment-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+            .comment-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+
+                .user-info {
+                    display: flex;
+                    align-items: center;
+
+                    .avatar {
+                        width: 40px;
+                        height: 40px;
+                        margin-right: 10px;
+                        border-radius: 50%;
+                        overflow: hidden;
+
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        }
+                    }
+
+                    .user-details {
+                        .username {
+                            font-weight: 500;
+                            color: #333;
+                        }
+
+                        .comment-date {
+                            font-size: 12px;
+                            color: #999;
+                        }
+                    }
+                }
+            }
+
+            .comment-content {
+                color: #333;
+                line-height: 1.5;
+            }
+        }
+    }
+}
 // Responsive adjustments
 @media (max-width: 768px) {
     .product-layout {

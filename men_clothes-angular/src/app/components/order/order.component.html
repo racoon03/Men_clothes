@@ -31,7 +31,7 @@
                             <span class="attribute">Màu: {{ getColorName(item.color_id) }}</span>
                             <span class="attribute">Kích thước: {{ getSizeName(item.size_id) }}</span>
                         </div>
-                        <div class="item-price">{{ item.product.price | currency:'VND':'symbol-narrow':'1.0-0' }}</div>
+                        <div class="item-price">{{ item.product.price | number }}đ</div>
                     </div>
                     <div class="item-quantity">
                         <div class="quantity-controls">
@@ -42,9 +42,14 @@
                         </div>
                     </div>
                     <div class="item-total">
-                        {{ item.product.price * item.quantity | currency:'VND':'symbol-narrow':'1.0-0' }}
+                        {{ item.product.price * item.quantity | number }}đ
                     </div>
+                    <!-- Thêm icon mã giảm giá -->
+                    
                     <div class="item-action">
+                        <div class="coupon-icon" (click)="showCouponsForItem(item, $event)">
+                            <i class="fa fa-ticket"></i>
+                        </div>
                         <button class="remove-btn" (click)="removeItem(item)">
                             <i class="fa fa-trash"></i>
                         </button>
@@ -63,23 +68,38 @@
             <div class="cart-summary" *ngIf="cartItems.length > 0">
                 <div class="summary-row">
                     <span>Tổng tiền hàng:</span>
-                    <span>{{ calculateSubtotal() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+                    <span>{{ calculateSubtotal() | number }}đ</span>
                 </div>
                 <div class="summary-row">
                     <span>Phí vận chuyển:</span>
-                    <span>{{ calculateShippingCost() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+                    <span>{{ calculateShippingCost() | number }}đ</span>
+                </div>
+                <div class="summary-row">
+                    <span>Coupon:</span>
+                    <span *ngIf="couponDiscount > 0">-{{ couponDiscount | number }}đ</span>
                 </div>
                 <div class="summary-row coupon-row">
                     <div class="coupon-input">
                         <input type="text" [(ngModel)]="couponCode" placeholder="Nhập mã giảm giá">
                         <button class="btn-apply" (click)="applyCoupon()">Áp dụng</button>
                     </div>
-                    <span *ngIf="couponDiscount > 0">-{{ couponDiscount | currency:'VND':'symbol-narrow':'1.0-0'
-                        }}</span>
+                   
+                </div>
+                <!-- Hiển thị mã giảm giá đã chọn -->
+                <div class="selected-coupon" *ngIf="selectedCoupon && couponAppliedToItem">
+                    <div class="summary-row coupon-selected-row">
+                        <div class="coupon-badge">
+                            <i class="fa fa-ticket"></i>
+                            <span>{{ selectedCoupon.codecp }} - Giảm {{ selectedCoupon.discount * 100 }}% cho sản phẩm {{
+                                couponAppliedToItem.product.name }}</span>
+                            <button class="remove-coupon" (click)="removeCoupon()">×</button>
+                        </div>
+                        <span>-{{ couponDiscount | number }}đ</span>
+                    </div>
                 </div>
                 <div class="summary-row total-row">
                     <span>Tổng thanh toán:</span>
-                    <span>{{ calculateTotal() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+                    <span>{{ calculateTotal() | number }}đ</span>
                 </div>
             </div>
         </div>
@@ -204,19 +224,19 @@
                         <div class="order-summary">
                             <div class="summary-row">
                                 <span>Tổng tiền hàng ({{ selectedItemsCount }} sản phẩm):</span>
-                                <span>{{ calculateSubtotal() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+                                <span>{{ calculateSubtotal() | number }}đ</span>
                             </div>
                             <div class="summary-row">
                                 <span>Phí vận chuyển:</span>
-                                <span>{{ calculateShippingCost() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+                                <span>{{ calculateShippingCost() | number }}đ</span>
                             </div>
                             <div class="summary-row" *ngIf="couponDiscount > 0">
                                 <span>Giảm giá:</span>
-                                <span>-{{ couponDiscount | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+                                <span>-{{ couponDiscount | number }}đ</span>
                             </div>
                             <div class="summary-row total-row">
                                 <span>Tổng thanh toán:</span>
-                                <span>{{ calculateTotal() | currency:'VND':'symbol-narrow':'1.0-0' }}</span>
+                                <span>{{ calculateTotal() | number }}đ</span>
                             </div>
                         </div>
 
@@ -232,5 +252,34 @@
             </div>
         </div>
     </div>
+    <!-- coupon -->
+    <div class="coupon-popup" *ngIf="showCouponList" [style.top.px]="couponPopupPosition.top"
+        [style.right.px]="couponPopupPosition.top">
+        <div class="coupon-popup-header">
+            <h3>Mã giảm giá khả dụng</h3>
+            <button class="close-btn" (click)="closeCouponList()">×</button>
+        </div>
+        <div class="coupon-popup-body">
+            <div class="coupon-list">
+                <div class="no-coupons" *ngIf="availableCoupons.length === 0">
+                    Không có mã giảm giá nào khả dụng
+                </div>
+                <div class="coupon-item" *ngFor="let coupon of availableCoupons" (click)="selectCoupon(coupon)">
+                    <div class="coupon-content">
+                        <div class="coupon-code">{{ coupon.codecp }}</div>
+                        <div class="coupon-discount">Giảm {{ coupon.discount * 100 }}%</div>
+                        <div class="coupon-description">{{ coupon.content }}</div>
+                        <div class="coupon-date">Từ {{ coupon.startday | date:'dd/MM/yyyy' }} đến {{ coupon.endday |
+                            date:'dd/MM/yyyy' }}</div>
+                    </div>
+                    <div class="coupon-action">
+                        <button class="btn-apply-coupon">Áp dụng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
 </div>
 <app-footer></app-footer>

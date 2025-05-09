@@ -16,12 +16,8 @@ import { UserResponse } from '../responses/user/user.response';
 })
 export class LoginComponent {
   @ViewChild('loginForm') loginForm!: NgForm;
-  // login user
-  // phoneNumber: string = '0987654329';
-  // password: string = 'test11';
-  //login admin
-  phoneNumber: string = '0944446321';
-  password: string = 'test10';
+  phoneNumber: string = '';
+  password: string = '';
 
 
   roles: Role[] = []; // Mảng roles
@@ -59,14 +55,12 @@ export class LoginComponent {
 
   createAccount() {
     debugger
-    // Chuyển hướng người dùng đến trang đăng ký (hoặc trang tạo tài khoản)
     this.router.navigate(['/register']); 
   }
 
   login() {
     const message = `phone: ${this.phoneNumber}` +
       `password: ${this.password}`;
-    //alert(message);
     debugger
 
     const loginDTO: LoginDTO = {

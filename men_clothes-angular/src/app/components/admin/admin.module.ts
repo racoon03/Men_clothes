@@ -12,7 +12,9 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AddProductAdminComponent } from './add-product/add.product.admin.component';
 import { NgSelectModule } from '@ng-select/ng-select';
-
+import { DashboardAdminComponent } from './dashboard/dashboard.admin.component';
+import { UserAdminComponent } from './user/user.admin.component';
+import { CouponAdminComponent } from './coupon/coupon.admin.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,10 @@ import { NgSelectModule } from '@ng-select/ng-select';
     ProductAdminComponent,
     CategoryAdminComponent,
     DetailProductAdminComponent,
-    AddProductAdminComponent
+    DashboardAdminComponent,
+    AddProductAdminComponent,
+    CouponAdminComponent,
+    UserAdminComponent,
   ],
   imports: [
     AdminRoutingModule, // import routes,

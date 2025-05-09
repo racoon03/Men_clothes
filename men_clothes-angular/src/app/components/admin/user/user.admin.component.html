@@ -1,0 +1,199 @@
+<div class="user-admin-container">
+    <div class="header">
+        <div class="title-section">
+            <h2>Quản lý người dùng</h2>
+            <p>Quản lý tất cả người dùng trong hệ thống</p>
+        </div>
+
+        <div class="action-buttons">
+            <div class="search-bar">
+                <input type="text" [(ngModel)]="keyword" placeholder="Tìm kiếm tên hoặc số điện thoại..."
+                    class="search-input" (keyup.enter)="searchUsers()">
+                <button *ngIf="keyword" class="btn-clear" (click)="clearSearch()" title="Xóa tìm kiếm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <button class="btn-search" (click)="searchUsers()">
+                <i class="fas fa-search"></i>
+            </button>
+
+            <div class="limit-filter">
+                <select [ngModel]="limit" (ngModelChange)="limit = $event; currentPage = 1; loadUsers()"
+                    class="limit-select">
+                    <option [ngValue]="8">8 người dùng</option>
+                    <option [ngValue]="16">16 người dùng</option>
+                    <option [ngValue]="32">32 người dùng</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hiển thị tổng quát -->
+    <div class="user-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ users.length }}</h3>
+                <p>Người dùng hiển thị</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ getActiveUsersCount() }}</h3>
+                <p>Người dùng đang hoạt động</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ getInactiveUsersCount() }}</h3>
+                <p>Người dùng bị khóa</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hiển thị trạng thái tìm kiếm nếu có -->
+    <div class="search-status" *ngIf="keyword">
+        <div>
+            Kết quả tìm kiếm cho: <span class="keyword">"{{ keyword }}"</span>
+            <span *ngIf="users.length > 0">({{ users.length }} kết quả)</span>
+        </div>
+        <button class="reset-search" (click)="clearSearch()">Xóa tìm kiếm</button>
+    </div>
+
+    <!-- Bảng người dùng -->
+    <div class="user-table-container">
+        <table class="user-table" *ngIf="users.length > 0; else noData">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Họ tên</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of users" [ngClass]="{'inactive-user': !user.is_active}">
+                    <td class="id-column">{{user.id}}</td>
+                    <td class="name-column">{{user.fullname}}</td>
+                    <td>{{user.phone_number || 'N/A'}}</td>
+                    <td>{{user.address || 'Chưa cập nhật'}}</td>
+                    <td>
+                        <span class="role-badge" [ngClass]="user.role.name.toLowerCase()">
+                            {{user.role.name}}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge" [ngClass]="user.is_active ? 'active' : 'inactive'">
+                            {{user.is_active ? 'Hoạt động' : 'Bị khóa'}}
+                        </span>
+                    </td>
+                    <td class="actions-column">
+                        <div class="action-buttons">
+                            <button class="btn-toggle" [ngClass]="user.is_active ? 'btn-deactivate' : 'btn-activate'"
+                                (click)="showStatusConfirmModal(user)"
+                                [title]="user.is_active ? 'Khóa người dùng' : 'Mở khóa người dùng'">
+                                <i class="fas" [ngClass]="user.is_active ? 'fa-user-lock' : 'fa-user-check'"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <ng-template #noData>
+            <div class="no-data">
+                <i class="fas fa-users-slash"></i>
+                <p *ngIf="keyword">Không tìm thấy người dùng nào với từ khóa "{{ keyword }}".</p>
+                <p *ngIf="!keyword">Không tìm thấy người dùng nào trong hệ thống.</p>
+                <button *ngIf="keyword" class="btn-primary mt-3" (click)="clearSearch()">Xóa tìm kiếm</button>
+            </div>
+        </ng-template>
+    </div>
+
+    <!-- Modal xác nhận thay đổi trạng thái -->
+    <div class="confirm-modal" *ngIf="showConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Xác nhận thay đổi trạng thái</h3>
+                <button class="close-btn" (click)="cancelStatusUpdate()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p *ngIf="userToUpdate?.is_active">Bạn có chắc chắn muốn <strong>khóa</strong> người dùng <strong>{{
+                        userToUpdate?.fullname }}</strong>?</p>
+                <p *ngIf="!userToUpdate?.is_active">Bạn có chắc chắn muốn <strong>mở khóa</strong> người dùng <strong>{{
+                        userToUpdate?.fullname }}</strong>?</p>
+                <p class="warning-text" *ngIf="userToUpdate?.is_active">Người dùng sẽ không thể đăng nhập và sử dụng
+                    dịch vụ sau khi bị khóa.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="cancelStatusUpdate()">Hủy bỏ</button>
+                <button class="btn-confirm" (click)="confirmStatusUpdate()"
+                    [ngClass]="{'btn-confirm-activate': !userToUpdate?.is_active, 'btn-confirm-deactivate': userToUpdate?.is_active}">
+                    {{ userToUpdate?.is_active ? 'Xác nhận khóa' : 'Xác nhận mở khóa' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="pagination" *ngIf="totalPages > 1">
+        <div class="pagination-info">
+            <span>Trang {{ currentPage }} / {{ totalPages }}</span>
+            <span class="total-results">Tổng {{ users.length }} kết quả</span>
+        </div>
+
+        <div class="pagination-controls">
+            <button class="pagination-btn" [disabled]="currentPage <= 1" (click)="goToPage(1)" title="Trang đầu">
+                <i class="fas fa-angle-double-left"></i>
+            </button>
+            <button class="pagination-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)"
+                title="Trang trước">
+                <i class="fas fa-angle-left"></i>
+            </button>
+
+            <ng-container *ngFor="let page of getPaginationRange()">
+                <button class="pagination-btn" [class.active]="page === currentPage" (click)="goToPage(page)">
+                    {{ page }}
+                </button>
+            </ng-container>
+
+            <button class="pagination-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)"
+                title="Trang sau">
+                <i class="fas fa-angle-right"></i>
+            </button>
+            <button class="pagination-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(totalPages)"
+                title="Trang cuối">
+                <i class="fas fa-angle-double-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast-container" *ngIf="showToast">
+        <div class="toast" [ngClass]="toastType">
+            <div class="toast-content">
+                <i class="fas" [ngClass]="toastType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i>
+                <span>{{toastMessage}}</span>
+            </div>
+            <button class="toast-close" (click)="hideToast()">×</button>
+        </div>
+    </div>
+</div>

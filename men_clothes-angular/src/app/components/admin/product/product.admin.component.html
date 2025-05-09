@@ -27,8 +27,61 @@
 
             <button class="btn-edit" (click)="handleOptionClick(1)">
                 <i class="fas fa-palette"></i>
-                <span>Quản lý màu, kích cỡ</span>
+                <span>Thêm màu</span>
             </button>
+            <button class="btn-edit" (click)="handleOptionClick(2)">
+                <i class="fas fa-ruler"></i>
+                <span>Thêm kích cỡ</span>
+            </button>
+        </div>
+    </div>
+    <!-- Panel thêm màu -->
+    <div class="color-panel" *ngIf="showColorPanel">
+        <div class="panel-content">
+            <div class="panel-header">
+                <h3>Thêm màu mới</h3>
+                <button class="close-btn" (click)="closeColorPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="colorName">Tên màu:</label>
+                    <input type="text" id="colorName" [(ngModel)]="newColorName" placeholder="Nhập tên màu...">
+                </div>
+                <div class="form-group">
+                    <label for="colorPicker">Chọn màu:</label>
+                    <input type="color" id="colorPicker" [(ngModel)]="newColorHex">
+                    <span class="color-preview" [style.background-color]="newColorHex"></span>
+                    <span class="color-code">{{newColorHex}}</span>
+                </div>
+                <button class="btn-save" (click)="saveNewColor()">
+                    <i class="fas fa-save"></i>
+                    <span>Lưu màu mới</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel thêm kích cỡ -->
+    <div class="size-panel" *ngIf="showSizePanel">
+        <div class="panel-content">
+            <div class="panel-header">
+                <h3>Thêm kích cỡ mới</h3>
+                <button class="close-btn" (click)="closeSizePanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="sizeName">Tên kích cỡ:</label>
+                    <input type="text" id="sizeName" [(ngModel)]="newSizeName" placeholder="Nhập tên kích cỡ...">
+                </div>
+                <button class="btn-save" (click)="saveNewSize()">
+                    <i class="fas fa-save"></i>
+                    <span>Lưu kích cỡ mới</span>
+                </button>
+            </div>
         </div>
     </div>
 

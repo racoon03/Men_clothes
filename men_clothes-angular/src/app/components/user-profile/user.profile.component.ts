@@ -21,7 +21,8 @@ import { UpdateUserDTO } from '../../dtos/user/update.user.dto';
 export class UserProfileComponent implements OnInit {
   userResponse?: UserResponse;
   userProfileForm: FormGroup;
-  token:string = '';
+  token: string = '';
+  test: string = 'test';
   constructor(
     private formBuilder: FormBuilder,
     private activatedRoute: ActivatedRoute,
@@ -30,11 +31,11 @@ export class UserProfileComponent implements OnInit {
     private tokenService: TokenService,
   ){        
     this.userProfileForm = this.formBuilder.group({
-      fullname: [''],     
+      fullname: ['',[Validators.required]],     
       address: ['', [Validators.minLength(3)]],       
-      password: ['', [Validators.minLength(3)]], 
-      retype_password: ['', [Validators.minLength(3)]], 
-      date_of_birth: [Date.now()],      
+      password: [''], 
+      retype_password: [''], 
+      date_of_birth: [Date.now(),[Validators.required]],      
     }, {
       validators: this.passwordMatchValidator// Custom validator function for password match
     });
@@ -42,20 +43,26 @@ export class UserProfileComponent implements OnInit {
   
   ngOnInit(): void {  
     debugger
+    this.userProfileForm.patchValue({
+      date_of_birth: this.formatDateForInput(this.userResponse?.date_of_birth)
+    });
+
     this.token = this.tokenService.getToken();
     this.userService.getUserDetail(this.token).subscribe({
       next: (response: any) => {
-        debugger
+        const dateOfBirth = new Date(response.date_of_birth);
+        
         this.userResponse = {
           ...response,
-          date_of_birth: new Date(response.date_of_birth),
+          date_of_birth: dateOfBirth,
         };    
         this.userProfileForm.patchValue({
           fullname: this.userResponse?.fullname ?? '',
           address: this.userResponse?.address ?? '',
-          date_of_birth: this.userResponse?.date_of_birth.toISOString().substring(0, 10),
+          date_of_birth: this.formatDateForInput(dateOfBirth),
         });        
-        this.userService.saveUserResponseToLocalStorage(this.userResponse);         
+        this.userService.saveUserResponseToLocalStorage(this.userResponse);  
+        console.log('userResponse', this.userResponse);
       },
       complete: () => {
         debugger;
@@ -77,15 +84,115 @@ export class UserProfileComponent implements OnInit {
       return null;
     };
   }
+
+  private formatTimestampToDateString(timestamp: number): string {
+    const date = new Date(timestamp);
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+    
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  }
+
+  private showErrorAlert(fieldName: string, errorType: string): void {
+    const errorMessages: any = {
+      fullname: {
+        required: 'Vui lòng nhập họ và tên'
+      },
+      address: {
+        minlength: 'Địa chỉ phải có ít nhất 3 ký tự'
+      },
+      date_of_birth: {
+        required: 'Vui lòng chọn ngày sinh'
+      },
+      password: {
+        minlength: 'Mật khẩu phải có ít nhất 3 ký tự'
+      },
+      retype_password: {
+        passwordMismatch: 'Mật khẩu nhập lại không khớp'
+      }
+    };
+
+    if (errorMessages[fieldName] && errorMessages[fieldName][errorType]) {
+      alert(errorMessages[fieldName][errorType]);
+    } else {
+      alert(`Lỗi không xác định ở trường ${fieldName}`);
+    }
+  }
+
+  private validatePassword(): boolean {
+  const password = this.userProfileForm.get('password')?.value;
+  const retypePassword = this.userProfileForm.get('retype_password')?.value;
+  
+  if (password || retypePassword) {
+    // Kiểm tra độ dài
+    if (password.length < 3) {
+      alert('Mật khẩu phải có ít nhất 3 ký tự');
+      return false;
+    }
+    // Kiểm tra khớp
+    if (password !== retypePassword) {
+      alert('Mật khẩu nhập lại không khớp');
+      return false;
+    }
+  }
+  return true;
+  }
+
+  private validateForm(): boolean {
+    let isValid = true;
+
+    // Kiểm tra các trường thông tin cơ bản
+    const fieldsToCheck = ['fullname', 'address', 'date_of_birth'];
+    fieldsToCheck.forEach(field => {
+      const control = this.userProfileForm.get(field);
+      if (control?.invalid) {
+        const errorKey = Object.keys(control.errors!)[0];
+        this.showErrorAlert(field, errorKey);
+        isValid = false;
+      }
+    });
+
+    // Kiểm tra mật khẩu nếu có nhập
+    if (!this.validatePassword()) {
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  private formatDateForInput(date: Date | undefined): string | null {
+    if (!date) return null;
+    
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  }
+    
   save(): void {
     debugger
-    if (this.userProfileForm.valid) {
+
+    // Validate toàn bộ form trước
+    if (!this.validateForm()) {
+      return;
+    }
+
+    const rawDate = this.userProfileForm.get('date_of_birth')?.value;
+    console.log('rawDate', rawDate);
+    const dateOfBirth = new Date(rawDate + 'T00:00:00');
+    dateOfBirth.setDate(dateOfBirth.getDate() + 1);
+
+    // if (this.userProfileForm.valid) {
       const updateUserDTO: UpdateUserDTO = {
         fullname: this.userProfileForm.get('fullname')?.value,
         address: this.userProfileForm.get('address')?.value,
-        password: this.userProfileForm.get('password')?.value,
-        retype_password: this.userProfileForm.get('retype_password')?.value,
-        date_of_birth: this.userProfileForm.get('date_of_birth')?.value
+        password: this.userProfileForm.get('password')?.value || undefined,
+        retype_password: this.userProfileForm.get('retype_password')?.value || undefined,
+        date_of_birth: dateOfBirth 
       };
   
       this.userService.updateUserDetail(this.token, updateUserDTO)
@@ -99,11 +206,12 @@ export class UserProfileComponent implements OnInit {
             alert(error.error.message);
           }
         });
-    } else {
-      if (this.userProfileForm.hasError('passwordMismatch')) {        
-        alert('Mật khẩu và mật khẩu gõ lại chưa chính xác')
-      }
-    }
-  }    
+    } 
+  //   else {
+  //     if (this.userProfileForm.hasError('passwordMismatch')) {        
+  //       alert('Mật khẩu và mật khẩu gõ lại chưa chính xác')
+  //     }
+  //   }
+  // }    
 }
 

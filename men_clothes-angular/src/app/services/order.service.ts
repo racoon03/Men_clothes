@@ -7,6 +7,7 @@ import { environment } from '../enviroments/enviroment';
 import { OrderDTO } from '../dtos/order/order.dto';
 import { OrderResponse } from '../components/responses/order/order.response';
 import { CartItem } from '../models/cart.item';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,12 +21,14 @@ export class OrderService {
   private normalShippingCost: number = 15000; // 15,000 VND
 
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+              private tokenService: TokenService,         
+  ) {}
 
   placeOrder(orderData: OrderDTO): Observable<any> {    
-    // Gửi yêu cầu đặt hàng
     return this.http.post(this.apiUrl, orderData);
   }
+  
   getOrderById(orderId: number): Observable<any> {
     const url = `${environment.apiBaseUrl}/orders/${orderId}`;
     return this.http.get(url);
@@ -66,9 +69,16 @@ export class OrderService {
   }
 
   // Phương thức tiện ích để hủy đơn hàng
-  cancelOrder(orderId: number): Observable<any> {
-    return this.updateOrderStatus(orderId, 'CANCELLED');
-  }
+  // Phương thức hủy đơn hàng với token trong header
+cancelOrder(orderId: number): Observable<any> {
+  const url = `${environment.apiBaseUrl}/orders/cancel/${orderId}`;
+  return this.http.put(url, {}, {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.tokenService.getToken()}`
+    })
+  });
+}
 
 
   // xử lý cập nhật trạng thái đon hàng

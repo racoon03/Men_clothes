@@ -91,18 +91,6 @@
                     </button>
                     <button class="btn-buy-now" (click)="buyNow()">Mua ngay</button>
                 </div>
-
-                <!-- Thông tin khuyến mãi và ưu đãi -->
-                <div class="promotion-info">
-                    <div class="promotion-item">
-                        <i class="fas fa-truck"></i>
-                        <span>Miễn phí vận chuyển với đơn hàng trên 500K</span>
-                    </div>
-                    <div class="promotion-item">
-                        <i class="fas fa-undo"></i>
-                        <span>Đổi trả dễ dàng trong vòng 30 ngày</span>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -111,6 +99,57 @@
             <h3 class="section-title">Mô tả sản phẩm</h3>
             <div class="description-content">
                 <p>{{ product?.description }}</p>
+            </div>
+        </div>
+        <!--bình luận -->
+        <div class="product-reviews">
+            <h3 class="section-title">Bình luận</h3>
+        
+            <!-- Form thêm bình luận mới -->
+            <div class="comment-form" *ngIf="isLoggedIn">
+                <h4>Thêm bình luận mới</h4>
+                <div class="form-group">
+                    <textarea class="form-control" rows="3" placeholder="Viết bình luận của bạn..."
+                        [(ngModel)]="newComment.content"></textarea>
+                </div>
+                <button class="btn-post-comment" (click)="postComment()">Đăng bình luận</button>
+            </div>
+        
+            <!-- Thông báo đăng nhập để bình luận -->
+            <div class="login-to-comment" *ngIf="!isLoggedIn">
+                <p>Vui lòng <a [routerLink]="['/login']">đăng nhập</a> để bình luận.</p>
+            </div>
+        
+            <!-- Danh sách bình luận -->
+            <div class="comments-list">
+                <h4>Bình luận gần đây ({{ comments.length }})</h4>
+        
+                <div *ngIf="isLoadingComments" class="loading-comments">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
+        
+                <div *ngIf="!isLoadingComments && comments.length === 0" class="no-comments">
+                    <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+                </div>
+        
+                <div *ngFor="let comment of comments" class="comment-item">
+                    <div class="comment-header">
+                        <div class="user-info">
+                            <div class="avatar">
+                                <img src='assets/avatar_icon.jpg' alt="User Avatar">
+                            </div>
+                            <div class="user-details">
+                                <div class="username">{{ comment.user.fullname }}</div>
+                                <div class="comment-date">{{ formatDate(comment.updated_at) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comment-content">
+                        <p>{{ comment.content }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

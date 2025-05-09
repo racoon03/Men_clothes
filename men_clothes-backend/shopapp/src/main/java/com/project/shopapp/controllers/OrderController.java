@@ -127,7 +127,7 @@ public class OrderController {
         PageRequest pageRequest = PageRequest.of(
                 page, limit-1,
                 //Sort.by("createdAt").descending()
-                Sort.by("id").ascending()
+                Sort.by("id").descending()
         );
         Page<OrderResponse> orderPage = orderService
                 .getOrdersByKeyword(keyword, pageRequest)
@@ -174,7 +174,7 @@ public class OrderController {
         // Tạo Pageable từ thông tin trang và giới hạn
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
-                Sort.by("id").ascending()
+                Sort.by("id").descending()
         );
 
         Page<OrderResponse> orderPage = orderService
@@ -202,5 +202,20 @@ public class OrderController {
     public ResponseEntity<Integer> getProductCancelledCount(@PathVariable Long productId) {
         int count = orderService.countCancelledProductsByProductId(productId);
         return ResponseEntity.ok(count);
+    }
+
+    // restore dơn hang
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<?> cancelOrder(@Valid @PathVariable Long id) {
+        try {
+            Order cancelledOrder = orderService.cancelOrder(id);
+            return ResponseEntity.ok().body(
+                    new ResponseObject("Order cancelled successfully", HttpStatus.OK, OrderResponse.fromOrder(cancelledOrder))
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    new ResponseObject(e.getMessage(), HttpStatus.BAD_REQUEST, null)
+            );
+        }
     }
 }

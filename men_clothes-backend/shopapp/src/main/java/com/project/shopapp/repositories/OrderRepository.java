@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -27,4 +28,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findByUserIdOrderByOrderDateDesc(Long userId, Pageable pageable);
     List<Order> findByStatusNotAndActive(String status, boolean active);
     List<Order> findByStatusAndActive(String status, boolean active);
+
+    /**
+     * Tìm đơn hàng theo khoảng thời gian
+     */
+    List<Order> findByOrderDateBetween(LocalDate startDate, LocalDate endDate);
+
 }

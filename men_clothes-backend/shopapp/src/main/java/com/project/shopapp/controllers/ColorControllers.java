@@ -31,8 +31,8 @@ public class ColorControllers {
                     .toList();
             return ResponseEntity.badRequest().body(errorMessages);
         }
-        colorService.createColor(colorDTO);
-        return ResponseEntity.ok("Insert color successfully");
+        Color newColor = colorService.createColor(colorDTO);
+        return ResponseEntity.ok(newColor);
     }
     @GetMapping("")
     public ResponseEntity<List<Color>> getAllColors() {

@@ -28,6 +28,7 @@ public class OrderService implements IOrderService{
     private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper;
     private final ProductVariantService productVariantService;
+    private final ProductVariantRepository productVariantRepository;
     @PersistenceContext
     private EntityManager entityManager;
     @Override
@@ -102,6 +103,8 @@ public class OrderService implements IOrderService{
             // Các trường khác của OrderDetail nếu cần
             orderDetail.setPrice(product.getPrice());
             orderDetail.setTotalMoney(orderDTO.getTotalMoney());
+            orderDetail.setProductVariantId(productVariant.getId());
+
 
             // Thêm OrderDetail vào danh sách
             orderDetails.add(orderDetail);
@@ -292,6 +295,41 @@ public class OrderService implements IOrderService{
         }
 
         return count;
+    }
+
+    @Override
+    @Transactional
+    public Order cancelOrder(Long orderId) throws DataNotFoundException {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + orderId));
+
+        if (!OrderStatus.PENDING.equals(order.getStatus())) {
+            throw new DataNotFoundException("Can only cancel orders in PENDING status");
+        }
+
+        // Khôi phục số lượng sản phẩm
+        for (OrderDetail detail : order.getOrderDetails()) {
+            try {
+                // Lấy variant ID từ OrderDetail
+                Long variantId = detail.getProductVariantId();
+                int quantity = detail.getNumberOfProducts();
+
+                if (variantId != null) {
+                    // Tìm variant
+                    ProductVariant variant = productVariantRepository.findById(variantId)
+                            .orElseThrow(() -> new DataNotFoundException("Cannot find variant with id: " + variantId));
+
+                    // Cập nhật số lượng
+                    variant.setQuantity(variant.getQuantity() + quantity);
+                    productVariantRepository.save(variant);
+                }
+            } catch (Exception e) {
+                System.err.println("Error restoring product quantity: " + e.getMessage());
+            }
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        return orderRepository.save(order);
     }
 
 }

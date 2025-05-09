@@ -103,7 +103,7 @@ public class ProductService implements IProductService{
             existingProduct.setCategory(existingCategory);
             existingProduct.setPrice(productDTO.getPrice());
             existingProduct.setDescription(productDTO.getDescription());
-            existingProduct.setThumbnail(productDTO.getThumbnail());
+            //existingProduct.setThumbnail(productDTO.getThumbnail());
             return productRepository.save(existingProduct);
         }
         return null;
@@ -141,5 +141,16 @@ public class ProductService implements IProductService{
             throw new InvalidParamException("Number of images must be <= 5");
         }
         return productImageRepository.save(newProductImage);
+    }
+
+    @Override
+    @Transactional
+    public Product updateProductThumbnail(Long productId, String thumbnailUrl) throws Exception {
+        Product existingProduct = getProductById(productId);
+        if (existingProduct != null) {
+            existingProduct.setThumbnail(thumbnailUrl);
+            return productRepository.save(existingProduct);
+        }
+        return null;
     }
 }

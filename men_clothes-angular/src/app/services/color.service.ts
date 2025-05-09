@@ -20,6 +20,11 @@ export class ColorService {
   return this.http.post<Color>(`${environment.apiBaseUrl}/colors`, colors);
   }
 
+  // Trong ColorService
+  addColor(color: {name: string}): Observable<any> {
+    return this.http.post(this.apiGetColors, color);
+  }
+
 
   // updateColors(categoryId: number, categoryData: CategoryDTO): Observable<any> {
   //     const url = `${environment.apiBaseUrl}/categories/${categoryId}`;

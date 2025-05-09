@@ -33,8 +33,8 @@ public class SizeController {
                     .toList();
             return ResponseEntity.badRequest().body(errorMessages);
         }
-        sizeService.createSize(sizeDTO);
-        return ResponseEntity.ok("Insert size successfully");
+        Size newSize = sizeService.createSize(sizeDTO);
+        return ResponseEntity.ok(newSize);
     }
 
     //Hiện tất cả các categories

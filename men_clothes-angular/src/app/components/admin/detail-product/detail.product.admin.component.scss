@@ -192,7 +192,6 @@ $transition-speed: 0.3s;
 
 // Product images section
 .product-images-card {
-    //height: calc(60% - 15rem);
     margin-bottom: 1rem;
 
     .images-container {
@@ -206,8 +205,6 @@ $transition-speed: 0.3s;
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
         width: 100%;
-        //max-height: 300px;
-        //overflow-y: auto;
         overflow: visible;
 
         .image-item {

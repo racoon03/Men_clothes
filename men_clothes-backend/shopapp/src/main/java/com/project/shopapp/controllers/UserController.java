@@ -4,11 +4,15 @@ import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.models.User;
 import com.project.shopapp.responses.LoginResponse;
 import com.project.shopapp.responses.RegisterResponse;
+import com.project.shopapp.responses.UserListResponse;
 import com.project.shopapp.responses.UserResponse;
 import com.project.shopapp.services.IUserService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -107,5 +111,45 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PutMapping("/status/{userId}")
+    public ResponseEntity<UserResponse> updateUserStatus(
+            @PathVariable Long userId,
+            @RequestParam("active") boolean active
+
+    ) {
+        try {
+            User updatedUser = userService.updateUserActiveStatus(userId, active);
+            return ResponseEntity.ok(UserResponse.fromUser(updatedUser));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    UserResponse.builder()
+                            .build()
+            );
+        }
+    }
+
+    @GetMapping("/list-user")
+    public ResponseEntity<UserListResponse> getUsers(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit
+    ) {
+        // Tạo Pageable từ thông tin trang và giới hạn
+        PageRequest pageRequest = PageRequest.of(
+                page-1, limit,
+                Sort.by("id").ascending());
+
+        Page<UserResponse> userPage = userService.getAllUsers(keyword, pageRequest);
+        // Lấy tổng số trang
+        int totalPages = userPage.getTotalPages();
+        List<UserResponse> users = userPage.getContent();
+
+        return ResponseEntity.ok(UserListResponse
+                .builder()
+                .users(users)
+                .totalPages(totalPages)
+                .build());
     }
 }

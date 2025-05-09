@@ -33,6 +33,10 @@ export class AdminComponent implements OnInit {
         this.currentRoute = 'categories';
       } else if (url.includes('/admin/products')) {
         this.currentRoute = 'products';
+      } else if (url.includes('/admin/users')) {
+        this.currentRoute = 'users';
+      } else if (url.includes('/admin/coupons')) {
+        this.currentRoute = 'coupons';
       }
     });
   }
@@ -84,6 +88,10 @@ export class AdminComponent implements OnInit {
         return 'Quản lý danh mục';
       case 'products':
         return 'Quản lý sản phẩm';
+      case 'products':
+        return 'Quản lý người dùng';
+      case 'coupons':
+        return 'Quản lý mã giảm giá';
       default:
         return 'Bảng điều khiển';
     }

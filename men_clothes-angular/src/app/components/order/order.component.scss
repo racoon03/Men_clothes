@@ -522,6 +522,189 @@
     }
 }
 
+/* CSS cho icon mã giảm giá */
+.coupon-icon {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    margin-left: 5px;;
+    cursor: pointer;
+    color: #ff6600;
+    font-size: 0.9rem;
+}
+
+.coupon-icon i {
+    margin-right: 5px;
+}
+
+.coupon-icon:hover {
+    text-decoration: underline;
+}
+
+/* CSS cho popup mã giảm giá */
+.coupon-popup {
+    position: absolute;
+    width: 350px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.coupon-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.coupon-popup-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #999;
+}
+
+.coupon-popup-body {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.coupon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.no-coupons {
+    padding: 15px;
+    text-align: center;
+    color: #777;
+}
+
+.coupon-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px dashed #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.coupon-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.coupon-content {
+    flex: 1;
+}
+
+.coupon-code {
+    font-weight: bold;
+    color: #ff6600;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.coupon-discount {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.coupon-description {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.coupon-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.coupon-action {
+    padding-left: 10px;
+}
+
+.btn-apply-coupon {
+    padding: 5px 10px;
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* CSS cho nút hiển thị danh sách mã giảm giá */
+.btn-show-coupons {
+    margin-left: 10px;
+    padding: 7px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.btn-show-coupons i {
+    margin-right: 5px;
+    color: #ff6600;
+}
+
+.btn-show-coupons:hover {
+    background-color: #eee;
+}
+
+/* CSS cho mã giảm giá đã chọn */
+.selected-coupon {
+    margin-top: 10px;
+}
+
+.coupon-selected-row {
+    background-color: #fff8f3;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px dashed #ff6600;
+}
+
+.coupon-badge {
+    display: flex;
+    align-items: center;
+    color: #ff6600;
+}
+
+.coupon-badge i {
+    margin-right: 8px;
+}
+
+.remove-coupon {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.remove-coupon:hover {
+    color: #ff3300;
+}
+
 // Responsive styles
 @media (max-width: 768px) {
     .order-container {

@@ -17,6 +17,7 @@ import { ProductVariant } from 'src/app/models/product.variant';
 import { CreateProductVariantDTO } from 'src/app/dtos/product/create.product.variant.dto';
 import { TokenService } from 'src/app/services/token.service';
 import { OrderService } from 'src/app/services/order.service';
+import { COLOR_MAPPING, getColorCodeById } from 'src/app/components/color/color.mapping';
 import Chart from 'chart.js/auto';
 
 
@@ -52,7 +53,15 @@ export class DetailProductAdminComponent implements OnInit, AfterViewInit {
   importQuantity: number = 1;
   importNote: string = '';
   showImportForm: boolean = false;
+
+  // Thêm các thuộc tính mới vào class DetailProductAdminComponent
+  importPrice: number = 0;
+  importSupplier: string = '';
+  importDate: Date = new Date();
+  importHistory: any[] = [];
   
+  //mau variant
+  colorMap: {[key: number]: string} = {};
   // Biến cho form thêm biến thể mới
   newVariant: {
     colorId: number | null;
@@ -105,6 +114,8 @@ export class DetailProductAdminComponent implements OnInit, AfterViewInit {
     this.loadProductImages();
     this.loadProductVariants();
     this.loadProductStats();
+    this.colorMap = {...COLOR_MAPPING};
+    //this.loadImportHistory();
   }
 
   ngAfterViewInit(): void {
@@ -160,14 +171,35 @@ export class DetailProductAdminComponent implements OnInit, AfterViewInit {
         }
     }
   
-  
-  // Hiển thị form nhập hàng
+  // Thêm phương thức reload trang hiện tại
+  reloadPage(): void {
+    // Tải lại dữ liệu mà không làm mới trang
+    this.loadCategories();
+    this.loadColors();
+    this.loadSizes();
+    this.getProductDetails();
+    this.loadProductImages();
+    this.loadProductVariants();
+    this.loadProductStats();
+    
+    // Hiển thị thông báo
+    alert('Đã tải lại dữ liệu thành công!');
+  }
+  // Mở form nhập hàng với dữ liệu mặc định
   openImportForm(variant: ProductVariant): void {
-    this.currentVariant = variant;
-    this.importQuantity = 1;
-    this.importNote = '';
-    this.showImportForm = true;
-    this.showAddVariantForm = false; // Đóng form thêm biến thể nếu đang mở
+  this.currentVariant = variant;
+  this.importQuantity = 1;
+  this.importPrice = 0;
+  this.importSupplier = '';
+  this.importDate = new Date();
+  this.importNote = '';
+  this.showImportForm = true;
+  this.showAddVariantForm = false; // Đóng form thêm biến thể nếu đang mở
+  }
+  
+  // Kiểm tra dữ liệu nhập hàng hợp lệ
+  isImportDataValid(): boolean {
+    return this.importQuantity > 0 && this.importPrice > 0;
   }
 
   // Đóng/mở form nhập hàng
@@ -186,34 +218,55 @@ export class DetailProductAdminComponent implements OnInit, AfterViewInit {
   }
 
   // Xử lý nhập hàng
-  importStock(): void {
-    if (!this.currentVariant || this.importQuantity <= 0) {
-      alert('Vui lòng nhập số lượng hợp lệ');
-      return;
-    }
-    
-    const importData = {
-      variant_id: this.currentVariant.id,
-      product_id: this.productId,
-      color_id: this.currentVariant.color?.id,
-      size_id: this.currentVariant.size?.id,
-      additional_quantity: this.importQuantity,
-      note: this.importNote
-    };
-    
-    this.productVariantService.importStock(importData).subscribe({
-      next: (response) => {
-        alert('Nhập hàng thành công!');
-        this.toggleImportForm(); // Đóng form
-        this.loadProductVariants(); // Tải lại danh sách biến thể
-        this.calculateTotalStock(); // Cập nhật tổng tồn kho
-      },
-      error: (error) => {
-        console.error('Lỗi khi nhập hàng:', error);
-        alert('Có lỗi khi nhập hàng: ' + (error.message || 'Không xác định'));
-      }
-    });
+importStock(): void {
+  if (!this.currentVariant) {
+    alert('Vui lòng chọn biến thể sản phẩm');
+    return;
   }
+  
+  if (!this.isImportDataValid()) {
+    alert('Vui lòng nhập đầy đủ số lượng và giá nhập');
+    return;
+  }
+  
+  const importData = {
+    variant_id: this.currentVariant.id,
+    product_id: this.productId,
+    color_id: this.currentVariant.color?.id,
+    size_id: this.currentVariant.size?.id,
+    additional_quantity: this.importQuantity,
+    import_price: this.importPrice,
+    supplier: this.importSupplier,
+    import_date: this.importDate,
+    note: this.importNote
+  };
+  
+  this.productVariantService.importStock(importData).subscribe({
+    next: (response) => {
+      alert('Nhập hàng thành công!');
+      this.toggleImportForm(); // Đóng form
+      this.loadProductVariants(); // Tải lại danh sách biến thể
+      this.calculateTotalStock(); // Cập nhật tổng tồn kho
+      //this.loadImportHistory(); // Tải lại lịch sử nhập hàng
+    },
+    error: (error) => {
+      console.error('Lỗi khi nhập hàng:', error);
+      alert('Có lỗi khi nhập hàng: ' + (error.message || 'Không xác định'));
+    }
+  });
+}
+
+  // Nạp lịch sử nhập hàng
+  // loadImportHistory(): void {
+  //   this.productVariantService.getImportHistory(this.productId).subscribe({
+  //     next: (data) => {
+  //       this.importHistory = data;
+  //     },
+  //     error: (error) => {
+  //       console.error('Lỗi khi tải lịch sử nhập hàng:', error);
+  //     }
+  //   });
+  // }
   
   // Xử lý xóa mềm biến thể (đưa số lượng về 0)
   softDeleteVariant(variant: ProductVariant): void {
@@ -610,24 +663,8 @@ export class DetailProductAdminComponent implements OnInit, AfterViewInit {
     return 'N/A';
   }
 
-  // Trả về mã màu dựa trên tên màu
-  getColorCode(colorName: string | undefined): string {
-    if (!colorName) return '#cccccc'; // Default color
-    
-    const colorMap: { [key: string]: string } = {
-      'Đỏ': '#f44336',
-      'Xanh dương': '#2196f3',
-      'Xanh lá': '#4caf50',
-      'Vàng': '#ffeb3b',
-      'Cam': '#ff9800',
-      'Tím': '#9c27b0',
-      'Đen': '#212121',
-      'Trắng': '#ffffff',
-      'Xám': '#9e9e9e',
-      'Hồng': '#e91e63',
-      'Nâu': '#795548'
-    };
-    
-    return colorMap[colorName] || '#cccccc';
+  getColorCodeByVariant(variant: any): string {
+    if (!variant || !variant.color || variant.color.id === undefined) return '#cccccc';
+      return getColorCodeById(variant.color.id);
   }
 }

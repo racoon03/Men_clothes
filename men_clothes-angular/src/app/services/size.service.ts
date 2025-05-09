@@ -14,8 +14,12 @@ export class SizeService {
       return this.http.get<Size[]>(this.apiGetSizes);           
   }
 
-  createColors(sizes: Size[]): Observable<Size> {
+  createSizes(sizes: Size[]): Observable<Size> {
   return this.http.post<Size>(`${environment.apiBaseUrl}/sizes`, sizes);
+  }
+
+  addSize(sizeData: { name: string }): Observable<any> {
+    return this.http.post<any>(`${environment.apiBaseUrl}/sizes`, sizeData);
   }
 
 

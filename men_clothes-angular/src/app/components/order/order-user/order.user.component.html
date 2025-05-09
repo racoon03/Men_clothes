@@ -58,8 +58,8 @@
                             <button class="btn btn-outline-primary" (click)="viewOrderDetails(order.id)">
                                 Chi tiết
                             </button>
-                            <button *ngIf="canCancelOrder(order.status)" class="btn btn-outline-danger" (click)="cancelOrder(order.id)">
-                                Hủy đơn
+                            <button *ngIf="canCancelOrder(order.status)" class="btn btn-outline-danger" (click)="confirmCancelOrder(order.id)">
+                                <i class="fa fa-times-circle"></i> Hủy đơn
                             </button>
                         </div>
                     </div>

@@ -229,4 +229,16 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PutMapping("/{id}/thumbnail")
+    public ResponseEntity<?> updateProductThumbnail(
+            @PathVariable("id") Long productId,
+            @RequestBody ThumbnailDTO thumbnailDTO) {
+        try {
+            Product updatedProduct = productService.updateProductThumbnail(productId, thumbnailDTO.getThumbnail());
+            return ResponseEntity.ok(updatedProduct);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

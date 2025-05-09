@@ -27,4 +27,6 @@ public interface IOrderService {
 
     int countSoldProductsByProductId(Long productId);
     int countCancelledProductsByProductId(Long productId);
+
+    Order cancelOrder(Long orderId) throws DataNotFoundException;
 }

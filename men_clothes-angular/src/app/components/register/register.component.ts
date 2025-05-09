@@ -1,7 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { UserService } from '../../services/user.service';
+import { RegisterDTO } from '../../dtos/user/register.dto';
+import { ApiResponse } from '../responses/api.responses';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -10,7 +13,6 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent  {
   @ViewChild('registerForm') registerForm!: NgForm;
-  // Khai báo các biến tương ứng với các trường dữ liệu trong form
   phoneNumber: string;
   password: string;
   retypePassword: string;
@@ -18,9 +20,11 @@ export class RegisterComponent  {
   address:string;
   isAccepted: boolean;
   dateOfBirth: Date;
+  showPassword: boolean = false;
 
   constructor(
-    private router: Router
+    private router: Router,
+    private userService: UserService,
   ){
     this.phoneNumber = '';
     this.password = '';
@@ -42,13 +46,44 @@ export class RegisterComponent  {
       `fullName: ${this.fullName}` +
       `isAccepted: ${this.isAccepted}` +
       `dateOfBirth: ${this.dateOfBirth}`;
-    alert(message);
+    
+    const registerDTO: RegisterDTO = {
+        "fullname": this.fullName,
+        "phone_number": this.phoneNumber,
+        "address": this.address,
+        "password": this.password,
+        "retype_password": this.retypePassword,
+        "date_of_birth": this.dateOfBirth,
+        "facebook_account_id": 0,
+        "google_account_id": 0,
+        "role_id": 1
+    }
+    this.userService.register(registerDTO).subscribe({
+        next: (apiResponse: ApiResponse) => {
+          debugger
+          const confirmation = window
+            .confirm('Đăng ký thành công, mời bạn đăng nhập. Bấm "OK" để chuyển đến trang đăng nhập.');
+          if (confirmation) {
+            this.router.navigate(['/login']);
+          }
+        },
+        complete: () => {
+          debugger
+        },
+        error: (error: HttpErrorResponse) => {
+          debugger;
+          alert(error?.error?.message ?? 'Đã có lỗi xảy ra trong quá trình đăng ký');
+        } 
+    })  
   }
 
   gologin() {
     debugger
-    // Chuyển hướng người dùng đến trang đăng ký (hoặc trang tạo tài khoản)
     this.router.navigate(['/login']); 
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
   checkPasswords() {    

@@ -12,7 +12,7 @@ import { UserService } from '../../services/user.service';
 import { PaymentService } from '../../services/payment.service';
 import { ColorService } from '../../services/color.service';
 import { SizeService } from '../../services/size.service';
-
+import { CouponService } from '../../services/coupon.service';
 import { environment } from '../../enviroments/enviroment';
 import { OrderDTO } from '../../dtos/order/order.dto';
 import { Color } from '../../models/color';
@@ -20,6 +20,7 @@ import { Size } from '../../models/size';
 import { ApiResponse } from '../responses/api.responses';
 import { CartItem } from '../../models/cart.item';
 import { UserResponse } from '../responses/user/user.response';
+import { CouponResponse } from '../responses/coupon/coupon.response';
 
 @Component({
   selector: 'app-order',
@@ -44,6 +45,16 @@ export class OrderComponent implements OnInit {
   // User data
   userData: UserResponse | null = null;
 
+  // Coupon
+  availableCoupons: CouponResponse[] = [];
+  showCouponList: boolean = false;
+  selectedCoupon: CouponResponse | null = null;
+  couponAppliedToItem: CartItem | null = null;
+  
+  // Popup position
+  couponPopupPosition = { top: 0, right: 0 };
+  currentItem: CartItem | null = null;
+
   constructor(
     private cartService: CartService,
     private orderService: OrderService,
@@ -53,6 +64,7 @@ export class OrderComponent implements OnInit {
     private paymentService: PaymentService,
     private tokenService: TokenService,
     private fb: FormBuilder,
+    private couponService: CouponService,
     private router: Router
   ) {
     // Khởi tạo form với validators
@@ -64,6 +76,13 @@ export class OrderComponent implements OnInit {
       note: [''],
       shipping_method: ['express'],
       payment_method: ['cod']
+    });
+    
+    // Thêm xử lý sự kiện click để đóng popup khi click ra ngoài
+    document.addEventListener('click', () => {
+      if (this.showCouponList) {
+        this.showCouponList = false;
+      }
     });
   }
 
@@ -95,6 +114,25 @@ export class OrderComponent implements OnInit {
       },
       error: (error) => {
         console.error('Lỗi khi tải dữ liệu giỏ hàng:', error);
+      }
+    });
+  }
+
+  /**
+   * Lấy danh sách mã giảm giá khả dụng
+   */
+  loadAvailableCoupons(categoryId: number = 0): void {
+    const today = new Date().toISOString().slice(0, 19);;
+    console.log('Today:', today);
+    
+    this.couponService.getAvailableCoupons(categoryId, today).subscribe({
+      next: (response) => {
+        this.availableCoupons = response || [];
+        console.log('Available coupons:', this.availableCoupons);
+      },
+      error: (error) => {
+        console.error('Lỗi khi tải danh sách mã giảm giá:', error);
+        this.availableCoupons = []; // Đảm bảo mảng rỗng khi có lỗi
       }
     });
   }
@@ -237,6 +275,95 @@ export class OrderComponent implements OnInit {
   }
   
   /**
+   * Hiển thị danh sách mã giảm giá cho sản phẩm
+   */
+  showCouponsForItem(item: CartItem, event: MouseEvent): void {
+    this.currentItem = item;
+    console.log('Current item:', item);
+    console.log('categoryid:', item.product.category.id);
+    
+    // Tính toán vị trí hiển thị popup
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    this.couponPopupPosition = {
+      top: rect.bottom + window.scrollY,
+      right: rect.left + window.scrollX
+    };
+    
+    // Tải danh sách mã giảm giá (giả sử sản phẩm có category_id)
+    this.loadAvailableCoupons(item.product.category.id);
+    
+    // Hiển thị popup
+    this.showCouponList = true;
+    
+    // Ngăn chặn sự kiện click lan ra ngoài
+    event.stopPropagation();
+  }
+
+  /**
+   * Hiển thị tất cả mã giảm giá
+   */
+  showAllCoupons(event: MouseEvent): void {
+    // Tính toán vị trí hiển thị popup
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    this.couponPopupPosition = {
+      top: rect.bottom + window.scrollY,
+      right: rect.right + window.scrollX
+    };
+    
+    // Tải tất cả mã giảm giá (categoryId = 0)
+    this.loadAvailableCoupons(0);
+    
+    // Hiển thị popup
+    this.showCouponList = true;
+    
+    // Ngăn chặn sự kiện click lan ra ngoài
+    event.stopPropagation();
+  }
+
+  /**
+   * Đóng danh sách mã giảm giá
+   */
+  closeCouponList(): void {
+    this.showCouponList = false;
+  }
+
+  /**
+   * Chọn mã giảm giá
+   */
+  selectCoupon(coupon: CouponResponse): void {
+    this.selectedCoupon = coupon;
+    this.couponCode = coupon.codecp;
+    
+    // Áp dụng coupon cho sản phẩm đang được chọn
+    if (this.currentItem) {
+      this.couponAppliedToItem = this.currentItem;
+      
+      // Tính giá trị giảm giá chỉ dựa trên sản phẩm được chọn
+      const itemSubtotal = this.currentItem.product.price * this.currentItem.quantity;
+      this.couponDiscount = itemSubtotal * coupon.discount;
+      
+      // Cập nhật tổng tiền
+      this.calculateTotal();
+      
+      // Đóng popup
+      this.showCouponList = false;
+    }
+  }
+
+  /**
+   * Xóa mã giảm giá đã chọn
+   */
+  removeCoupon(): void {
+    this.selectedCoupon = null;
+    this.couponCode = '';
+    this.couponDiscount = 0;
+    this.couponAppliedToItem = null;
+    
+    // Cập nhật tổng tiền
+    this.calculateTotal();
+  }
+  
+  /**
    * Áp dụng mã giảm giá
    */
   applyCoupon(): void {
@@ -245,17 +372,41 @@ export class OrderComponent implements OnInit {
       return;
     }
     
-    // Gọi service để áp dụng mã giảm giá
-    const subtotal = this.calculateSubtotal();
-    const discount = this.orderService.applyCoupon(this.couponCode, subtotal);
+    // Nếu người dùng nhập mã giảm giá mà không chọn sản phẩm trước
+    if (!this.currentItem) {
+      alert('Vui lòng chọn sản phẩm để áp dụng mã giảm giá');
+      return;
+    }
     
-    if (discount > 0) {
-      this.couponDiscount = discount;
+    // Kiểm tra trong danh sách mã giảm giá có sẵn
+    const coupon = this.availableCoupons.find(c => c.codecp === this.couponCode);
+    
+    if (coupon) {
+      // Nếu có trong danh sách, áp dụng trực tiếp cho sản phẩm hiện tại
+      this.selectedCoupon = coupon;
+      this.couponAppliedToItem = this.currentItem;
+      
+      // Tính giá trị giảm giá cho sản phẩm hiện tại
+      const itemSubtotal = this.currentItem.product.price * this.currentItem.quantity;
+      this.couponDiscount = itemSubtotal * coupon.discount;
+      
       alert('Áp dụng mã giảm giá thành công!');
     } else {
-      this.couponDiscount = 0;
-      alert('Mã giảm giá không hợp lệ!');
-      this.couponCode = '';
+      // Nếu không có trong danh sách, gọi service để kiểm tra
+      const itemSubtotal = this.currentItem.product.price * this.currentItem.quantity;
+      const discount = this.orderService.applyCoupon(this.couponCode, itemSubtotal);
+      
+      if (discount > 0) {
+        this.couponDiscount = discount;
+        this.couponAppliedToItem = this.currentItem;
+        alert('Áp dụng mã giảm giá thành công!');
+      } else {
+        this.couponDiscount = 0;
+        this.couponAppliedToItem = null;
+        alert('Mã giảm giá không hợp lệ!');
+        this.couponCode = '';
+        this.selectedCoupon = null;
+      }
     }
     
     // Cập nhật tổng tiền
@@ -400,6 +551,9 @@ export class OrderComponent implements OnInit {
     this.updateSelection();
   }
 
+  /**
+   * Quay về trang chủ
+   */
   gohome(): void {
     this.router.navigate(['/']);
   }

@@ -1,28 +1,20 @@
 <app-header></app-header>
-
-<!-- Promotional Banner -->
-<!-- <div class="promo-banner">
-    Tặng 50k CoolCash + Voucher 15% cho thành viên CoolClub mới!
-    <a href="#" class="ms-2">Tham gia →</a>
-</div> -->
-
-<!-- Hero Banner -->
 <div class="hero-banner">
-    <!-- Banner Slide 1: Đồ Lót -->
+    <!-- Banner Slide 1: Áo phông -->
     <div class="banner-slide" [ngClass]="{'active': currentBannerIndex === 0}">
         <div class="banner-content">
-            <h1>VARSITY</h1>
-            <p>GIẢM NGAY 10% MỖI SẢN PHẨM</p>
+            <h1>ÁO PHÔNG</h1>
+            <p>Mua ÁO PHÔNG GIẢM 8%</p>
             <a href="#" class="banner-btn">KHÁM PHÁ NGAY</a>
         </div>
         <img src="/assets/banner1.webp" alt="varity mới" class="banner-image">
     </div>
 
-    <!-- Banner Slide 2: Áo Phông -->
+    <!-- Banner Slide 2: varsity -->
     <div class="banner-slide" [ngClass]="{'active': currentBannerIndex === 1}">
         <div class="banner-content">
-            <h1>ÁO PHÔNG</h1>
-            <p>Mua 2 áo giảm 30%</p>
+            <h1>VARSITY</h1>
+            <p>GIẢM NGAY 5% MỖI SẢN PHẨM</p>           
             <a href="#" class="banner-btn">KHÁM PHÁ NGAY</a>
         </div>
         <img src="/assets/varsity_green_celtics_1.jpg" alt="varity mới" class="banner-image">
@@ -73,12 +65,7 @@
             <!-- Hiển thị 5 sản phẩm từ trang hiện tại -->
             <div class="product-row">
                 <div class="product-item" *ngFor="let product of getVisibleProducts(tShirtProducts, tShirtPage)">
-                    <div class="product-card" (click)="onProductClick(product.id)">
-                        <div class="rating-badge">
-                            {{ product.rating }} <i class="fas fa-star"></i>
-                            <span class="rating-count">({{ product.ratingCount }})</span>
-                        </div>
-
+                    <div class="product-card" (click)="onProductClick(product.id)">   
                         <div class="product-image">
                             <img [src]="product.url" alt="{{ product.name }}" class="product-img">
                         </div>
@@ -87,9 +74,6 @@
                             <h3 class="product-name">{{ product.name }}</h3>
                             <div class="product-price">
                                 <span class="current-price">{{ product.price | number }}đ</span>
-                                <span class="original-price" *ngIf="product.originalPrice">{{ product.originalPrice |
-                                    number }}đ</span>
-                                <span class="discount-badge" *ngIf="product.discount">-{{ product.discount }}%</span>
                             </div>
                         </div>
 
@@ -118,12 +102,7 @@
         <div class="product-slider">
             <div class="product-row">
                 <div class="product-item" *ngFor="let product of getVisibleProducts(varsityProducts, varsityPage)">
-                    <div class="product-card" (click)="onProductClick(product.id)">
-                        <div class="rating-badge">
-                            {{ product.rating }} <i class="fas fa-star"></i>
-                            <span class="rating-count">({{ product.ratingCount }})</span>
-                        </div>
-
+                    <div class="product-card" (click)="onProductClick(product.id)">                       
                         <div class="product-image">
                             <img [src]="product.url" alt="{{ product.name }}" class="product-img">
                         </div>
@@ -132,14 +111,9 @@
                         <div class="product-info">
                             <h3 class="product-name">{{ product.name }}</h3>
                             <div class="product-price">
-                                <span class="current-price">{{ product.price | number }}đ</span>
-                                <span class="original-price" *ngIf="product.originalPrice">{{ product.originalPrice |
-                                    number }}đ</span>
-                                <span class="discount-badge" *ngIf="product.discount">-{{ product.discount }}%</span>
+                                <span class="current-price">{{ product.price | number }}đ</span>                               
                             </div>
-                        </div>
-
-                        
+                        </div>                     
                     </div>
                 </div>
             </div>
@@ -163,24 +137,14 @@
         <div class="product-slider">
             <div class="product-row">
                 <div class="product-item" *ngFor="let product of getVisibleProducts(trouserProducts, trouserPage)">
-                    <div class="product-card" (click)="onProductClick(product.id)">
-                        <div class="rating-badge">
-                            {{ product.rating }} <i class="fas fa-star"></i>
-                            <span class="rating-count">({{ product.ratingCount }})</span>
-                        </div>
-
+                    <div class="product-card" (click)="onProductClick(product.id)">                       
                         <div class="product-image">
                             <img [src]="product.url" alt="{{ product.name }}" class="product-img">
                         </div>
-
-
                         <div class="product-info">
                             <h3 class="product-name">{{ product.name }}</h3>
                             <div class="product-price">
                                 <span class="current-price">{{ product.price | number }}đ</span>
-                                <span class="original-price" *ngIf="product.originalPrice">{{ product.originalPrice |
-                                    number }}đ</span>
-                                <span class="discount-badge" *ngIf="product.discount">-{{ product.discount }}%</span>
                             </div>
                         </div>
 

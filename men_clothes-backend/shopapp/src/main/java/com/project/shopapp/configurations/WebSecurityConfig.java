@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,7 +29,7 @@ import static org.springframework.http.HttpMethod.DELETE;
 //@EnableMethodSecurity
 @EnableWebSecurity
 @EnableWebMvc
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
@@ -95,6 +96,9 @@ public class WebSecurityConfig {
                             .requestMatchers(POST,
                                     String.format("%s/product-variants/batch**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
+                            .requestMatchers(POST,
+                                    String.format("%s/product-variants/import**", apiPrefix)).hasRole(Role.ADMIN)
+
                             .requestMatchers(GET,
                                     String.format("%s/product-variants/**", apiPrefix)).permitAll()
 
@@ -123,10 +127,13 @@ public class WebSecurityConfig {
                                     String.format("%s/orders/**", apiPrefix)).permitAll()
 
                             .requestMatchers(PUT,
+                                    String.format("%s/orders/cancel/[0-9]+", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+
+                            .requestMatchers(PUT,
                                     String.format("%s/orders/status/**", apiPrefix)).permitAll()
 
                             .requestMatchers(PUT,
-                                    String.format("%s/orders/**", apiPrefix)).hasRole(Role.ADMIN)
+                                    String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
 
                             .requestMatchers(DELETE,
                                     String.format("%s/orders/**", apiPrefix)).hasRole(Role.ADMIN)
@@ -143,6 +150,42 @@ public class WebSecurityConfig {
                             .requestMatchers(DELETE,
                                     String.format("%s/order_details/**", apiPrefix)).hasRole(Role.ADMIN)
 
+                            .requestMatchers(GET,
+                                    String.format("%s/dashboard/**", apiPrefix)).hasRole(Role.ADMIN)
+
+                            .requestMatchers(GET,
+                                    String.format("%s/dashboard/export/profit**", apiPrefix)).hasRole(Role.ADMIN)
+
+                            .requestMatchers(POST,
+                                    String.format("%s/comments**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+
+                            .requestMatchers(GET,
+                                    String.format("%s/comments**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+
+                            .requestMatchers(PUT,
+                                    String.format("%s/comments**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+
+                            .requestMatchers(GET,
+                                    String.format("%s/users/list-user**", apiPrefix)).hasRole(Role.ADMIN)
+
+
+                            .requestMatchers(PUT,
+                                    String.format("%s/users/status/**", apiPrefix)).hasRole(Role.ADMIN)
+
+                            .requestMatchers(POST,
+                                    String.format("%s/coupons**", apiPrefix)).hasRole(Role.ADMIN)
+
+                            .requestMatchers(GET,
+                                    String.format("%s/coupons/available**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+
+                            .requestMatchers(GET,
+                                    String.format("%s/coupons/all**", apiPrefix)).hasRole(Role.ADMIN)
+
+                            .requestMatchers(PUT,
+                                    String.format("%s/coupons/extend**", apiPrefix)).hasRole(Role.ADMIN)
+
+                            .requestMatchers(DELETE,
+                                    String.format("%s/coupons**", apiPrefix)).hasRole(Role.ADMIN)
                             .anyRequest().authenticated();
                 });
         //cors
@@ -153,7 +196,7 @@ public class WebSecurityConfig {
                 configuration.setAllowedOrigins(List.of("*"));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
-                configuration.setExposedHeaders(List.of("x-auth-token"));
+                configuration.setExposedHeaders(List.of("x-auth-token", "Content-Disposition"));
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);
                 httpSecurityCorsConfigurer.configurationSource(source);

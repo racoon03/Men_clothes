@@ -10,6 +10,12 @@ import { ProductImage } from 'src/app/models/product.image';
 import { environment } from '../../enviroments/enviroment';
 import { ProductVariantService } from 'src/app/services/product.variant.service';
 import { COLOR_MAPPING } from '../color/color.mapping';
+import { CommentService } from '../../services/comment.service';
+import { Comment } from '../../models/comment';
+import { CommentDTO } from '../../dtos/comment.dto';
+import { TokenService } from '../../services/token.service';
+import { UserService } from 'src/app/services/user.service';
+//import { AuthService } from '../../services/';
 
 @Component({
   selector: 'app-detail-product',
@@ -27,6 +33,17 @@ export class DetailProductComponent implements OnInit {
   availableColors: any[] = [];
   availableSizes: any[] = [];
   isLoading: boolean = true;
+
+  // Thêm vào phần properties của class
+comments: Comment[] = [];
+isLoadingComments: boolean = false;
+isLoggedIn: boolean = false;
+currentUser: any = null;
+newComment: CommentDTO = {
+  content: '',
+  product_id: 0,
+  user_id: 0
+};
   
   // Biến để lưu các kích thước có sẵn theo màu
   availableSizesByColor: Map<number, number[]> = new Map();
@@ -37,6 +54,9 @@ export class DetailProductComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private productVariantService: ProductVariantService,
+    private commentService: CommentService,
+    private tokenService: TokenService,
+    private userService: UserService,
   ) {}
 
   ngOnInit() {
@@ -46,10 +66,74 @@ export class DetailProductComponent implements OnInit {
     if (idParam !== null) {
       this.productId = +idParam;
       this.loadProductDetails();
+      this.isLoggedIn = this.userService.isUserLoggedIn();
+
+      // Tải comments
+      this.loadComments();
+      
     } else {
       console.error('Không tìm thấy ID sản phẩm trong URL');
       this.router.navigate(['/products']);
     }
+  }
+
+  // Tải bình luận của sản phẩm
+  loadComments(): void {
+    if (!this.productId) return;
+    
+    this.isLoadingComments = true;
+    this.commentService.getCommentsByProduct(this.productId).subscribe({
+      next: (response) => {
+        this.comments = response;
+        console.log('comment :', this.comments);
+        this.isLoadingComments = false;
+      },
+      error: (error) => {
+        console.error('Lỗi khi tải bình luận:', error);
+        this.isLoadingComments = false;
+      }
+    });
+  }
+
+  // Đăng bình luận mới
+  postComment(): void {
+    // if (this.userService.isUserLoggedIn()) {
+    //   alert('Vui lòng đăng nhập để bình luận.');
+    //   return;
+    // }
+    this.newComment.product_id = this.productId;
+    this.newComment.user_id = this.tokenService.getUserId();
+    
+    if (!this.newComment.content.trim()) {
+      alert('Vui lòng nhập nội dung bình luận.');
+      return;
+    }
+    
+    this.commentService.addComment(this.newComment).subscribe({
+      next: () => {
+        // Sau khi đăng bình luận thành công, tải lại danh sách bình luận
+        this.loadComments();
+        // Reset form
+        this.newComment.content = '';
+        alert('Đăng bình luận thành công!');
+      },
+      error: (error) => {
+        console.error('Lỗi khi đăng bình luận:', error);
+        alert('Có lỗi xảy ra khi đăng bình luận. Vui lòng thử lại sau.');
+      }
+    });
+  }
+
+  // Thêm vào class DetailProductComponent
+  formatDate(dateArray: any[]): string {
+    if (!dateArray || !Array.isArray(dateArray) || dateArray.length < 6) {
+      return '';
+    }
+    
+    const [year, month, day, hour, minute] = dateArray;
+    const date = new Date(year, month - 1, day, hour, minute);
+    
+    return `${day}/${month}/${year} ${hour}:${minute < 10 ? '0' + minute : minute}`;
   }
 
   // Tải thông tin chi tiết sản phẩm
@@ -204,6 +288,11 @@ export class DetailProductComponent implements OnInit {
   
   // Thêm sản phẩm vào giỏ hàng
   addToCart(): void {
+    if (!this.userService.isUserLoggedIn()) {
+      alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+      this.router.navigate(['/login']);
+      return;
+    }
     if (this.product) {
       this.cartService.addToCart(this.product.id, this.selectedColorId, this.selectedSizeId, this.quantity);
       alert('Đã thêm sản phẩm vào giỏ hàng.');
@@ -226,9 +315,14 @@ export class DetailProductComponent implements OnInit {
   
   // Chuyển hướng đến trang đặt hàng
   buyNow(): void {
+    if (!this.userService.isUserLoggedIn()) {
+      alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+      this.router.navigate(['/login']);
+      return;
+    }
     if (this.product) {
       this.cartService.addToCart(this.product.id, this.selectedColorId, this.selectedSizeId, this.quantity);
-      this.router.navigate(['/checkout']);
+      this.router.navigate(['/orders']);
     }
   }
 }

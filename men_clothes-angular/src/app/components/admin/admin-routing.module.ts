@@ -8,11 +8,18 @@ import { ProductAdminComponent } from "./product/product.admin.component";
 import { CategoryAdminComponent } from "./category/category.admin.component";
 import { DetailProductAdminComponent } from "./detail-product/detail.product.admin.component";
 import { AddProductAdminComponent } from "./add-product/add.product.admin.component";
+import { DashboardAdminComponent } from "./dashboard/dashboard.admin.component";
+import { UserAdminComponent } from "./user/user.admin.component";
+import { CouponAdminComponent } from "./coupon/coupon.admin.component";
 const routes: Routes = [
     {
         path: 'admin',
         component: AdminComponent,
         children: [
+            {
+                path: 'dashboard',
+                component: DashboardAdminComponent
+            },
             {
                 path: 'orders',
                 component: OrderAdminComponent
@@ -36,6 +43,14 @@ const routes: Routes = [
             {
                 path: 'add-product',
                 component: AddProductAdminComponent
+            },
+            {
+                path: 'users',
+                component: UserAdminComponent
+            },
+            {
+                path: 'coupons',
+                component: CouponAdminComponent
             },
         ]
     }

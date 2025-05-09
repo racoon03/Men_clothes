@@ -47,6 +47,18 @@
                         <span *ngIf="!isSidebarCollapsed">Sản phẩm</span>
                     </a>
                 </li>
+                <li [ngClass]="{'active': isActive('users')}">
+                    <a (click)="showAdminComponent('users')">
+                        <i class="fas fa-box"></i>
+                        <span *ngIf="!isSidebarCollapsed">Người dùng</span>
+                    </a>
+                </li>
+                <li [ngClass]="{'active': isActive('coupons')}">
+                    <a (click)="showAdminComponent('coupons')">
+                        <i class="fas fa-box"></i>
+                        <span *ngIf="!isSidebarCollapsed">Mã giảm giá</span>
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -60,22 +72,6 @@
 
     <!-- Main Content -->
     <div class="main-content" [ngClass]="{'expanded': isSidebarCollapsed}">
-        <div class="header">
-            <div class="page-title">
-                <h1>{{ getPageTitle() }}</h1>
-            </div>
-            <div class="header-actions">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Tìm kiếm...">
-                </div>
-                <div class="notifications">
-                    <i class="fas fa-envelope"></i>
-                    <span class="badge">3</span>
-                </div>
-            </div>
-        </div>
-
         <div class="content-wrapper">
             <router-outlet></router-outlet>
         </div>

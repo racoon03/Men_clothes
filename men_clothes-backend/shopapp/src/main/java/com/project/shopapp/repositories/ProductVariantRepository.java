@@ -23,4 +23,8 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     List<ProductVariant> findProductVariantById(@Param("productId") Long productId);
 
     Optional<ProductVariant> findByProductIdAndColorIdAndSizeId(Long productId, Long colorId, Long sizeId);
+    // Phương thức cần bổ sung
+    List<ProductVariant> findByQuantityLessThan(Long threshold);
+
+
 }

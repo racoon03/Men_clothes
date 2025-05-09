@@ -2,6 +2,10 @@ package com.project.shopapp.dtos;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 
 @Data
 @Builder
@@ -25,5 +29,14 @@ public class ImportStockDTO {
     @JsonProperty("additional_quantity")
     private Long additionalQuantity;
 
+    @JsonProperty("import_price")
+    private Float importPrice;
+
+    @JsonProperty("supplier")
+    private String supplier;
+
     private String note;
+
+    @JsonProperty("import_date")
+    private LocalDate importDate;
 }

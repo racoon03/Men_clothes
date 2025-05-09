@@ -5,7 +5,10 @@ import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.exceptions.PermissionDenyException;
 import com.project.shopapp.models.User;
+import com.project.shopapp.responses.UserResponse;
 import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 public interface IUserService {
     User createUser(UserDTO userDTO) throws DataNotFoundException, PermissionDenyException;
@@ -15,4 +18,7 @@ public interface IUserService {
 
     User getUserDetailsFromToken(String token) throws Exception;
 
+    Page<UserResponse> getAllUsers(String keyword, PageRequest pageRequest);
+
+    User updateUserActiveStatus(Long userId, boolean active) throws DataNotFoundException;
 }

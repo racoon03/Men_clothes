@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RegisterDTO } from '../dtos/user/register.dto';
 import { LoginDTO } from '../dtos/user/login.dto';
@@ -7,6 +7,9 @@ import { environment } from '../enviroments/enviroment';
 import { HttpUtilService } from './http.util.service';
 import { UserResponse } from '../components/responses/user/user.response';
 import { UpdateUserDTO } from '../dtos/user/update.user.dto';
+import { ApiResponse } from '../components/responses/api.responses';
+import { UserListResponse } from '../components/responses/user/user.list.response';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -15,6 +18,8 @@ export class UserService {
   private apiRegister = `${environment.apiBaseUrl}/users/register`;
   private apiLogin = `${environment.apiBaseUrl}/users/login`;
   private apiUserDetail = `${environment.apiBaseUrl}/users/details`;
+    private apiUserList = `${environment.apiBaseUrl}/users/list-user`;
+  private apiUserStatus = `${environment.apiBaseUrl}/users/status`;
 
 
   private apiConfig = {
@@ -43,10 +48,9 @@ export class UserService {
     })
   }
 
-  updateUserDetail(token: string, updateUserDTO: UpdateUserDTO) {
-    debugger
+  updateUserDetail(token: string, updateUserDTO: UpdateUserDTO): Observable<ApiResponse>  {
     let userResponse = this.getUserResponseFromLocalStorage();        
-    return this.http.put(`${this.apiUserDetail}/${userResponse?.id}`,updateUserDTO,{
+    return this.http.put<ApiResponse>(`${this.apiUserDetail}/${userResponse?.id}`,updateUserDTO,{
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
@@ -135,5 +139,50 @@ export class UserService {
         email: user.email || ''
       });
     }
+  }
+
+  /**
+   * Lấy danh sách người dùng với phân trang và tìm kiếm
+   */
+  getAllUsers(keyword: string = '', page: number = 1, limit: number = 10): Observable<UserListResponse> {
+    const token = localStorage.getItem('token');
+    
+    // Tạo params
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+    
+    // Thêm keyword nếu có
+    if (keyword && keyword.trim() !== '') {
+      params = params.set('keyword', keyword);
+    }
+    
+    // Tạo headers với token
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<UserListResponse>(this.apiUserList, { 
+      headers: headers,
+      params: params
+    });
+  }
+
+  /**
+   * Cập nhật trạng thái hoạt động của người dùng
+   */
+  updateUserStatus(userId: number, isActive: boolean): Observable<UserResponse> {
+    const token = localStorage.getItem('token');
+    
+    // Tạo headers với token
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.put<UserResponse>(`${this.apiUserStatus}/${userId}?active=${isActive}`, {}, {
+      headers: headers
+    });
   }
 }

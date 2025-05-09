@@ -6,6 +6,9 @@ import { CategoryService } from 'src/app/services/category.service';
 import { ProductVariantService } from 'src/app/services/product.variant.service';
 import { Category } from 'src/app/models/category';
 import { environment } from '../../../enviroments/enviroment';
+import { ColorService } from 'src/app/services/color.service';
+import { SizeService } from 'src/app/services/size.service';
+import { addColorToMapping } from 'src/app/components/color/color.mapping'; // Giả sử bạn có một hàm này trong utils
 
 @Component({
   selector: 'app-product-admin',
@@ -31,11 +34,20 @@ export class ProductAdminComponent implements OnInit {
   showDeleteModal: boolean = false;
   productToDelete: Product | null = null;
 
+  // color and size
+  showColorPanel: boolean = false;
+  showSizePanel: boolean = false;
+  newColorName: string = '';
+  newColorHex: string = '#000000';
+  newSizeName: string = '';
+
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
     private productVariantService: ProductVariantService,
     private router: Router,
+    private colorService: ColorService,
+    private sizeService: SizeService,
     private route: ActivatedRoute
   ) {}
 
@@ -57,6 +69,37 @@ export class ProductAdminComponent implements OnInit {
       }
     });
   }
+
+  saveNewColor(): void {
+    if (this.newColorName) {
+      // Chỉ gửi tên màu đến backend
+      this.colorService.addColor({ name: this.newColorName }).subscribe({
+        next: (response: any) => {
+          // Giả sử backend trả về object có id
+          if (response && response.id) {
+            // Thêm màu mới vào COLOR_MAPPING ở phía frontend
+            addColorToMapping(response.id, this.newColorHex);
+            this.showNotification('Đã thêm màu mới thành công!', 'success');
+            this.newColorName = '';
+            this.newColorHex = '#000000';
+          } else {
+            console.error('Không nhận được ID màu từ backend');
+            this.showNotification('Thêm màu thành công nhưng không thể cập nhật bảng màu.', 'info');
+          }
+        },
+        error: (error) => {
+          console.error('Lỗi khi thêm màu mới:', error);
+          this.showNotification('Có lỗi xảy ra khi thêm màu mới.', 'error');
+        }
+      });
+    } else {
+      this.showNotification('Vui lòng nhập tên màu.', 'error');
+    }
+  }
+
+  closeColorPanel(): void {
+  this.showColorPanel = false;
+}
 
   /**
    * Lấy danh sách sản phẩm
@@ -226,15 +269,19 @@ export class ProductAdminComponent implements OnInit {
       this.router.navigate(['admin/add-product']);                      
     }
     else if (index === 1) {
-      // Quản lý màu, kích cỡ
-      // Tạm thời chỉ hiển thị thông báo
-      this.showNotification('Tính năng đang phát triển.', 'info');
+      // Hiển thị panel thêm màu
+      this.showColorPanel = true;
+      this.showSizePanel = false;
+    }
+    else if (index === 2) {
+      // Hiển thị panel thêm kích cỡ
+      this.showSizePanel = true;
+      this.showColorPanel = false;
     }
   }
 
   /**
    * Hiển thị thông báo
-   * Trong thực tế, bạn có thể sử dụng một thư viện toast như ngx-toastr
    */
   private showNotification(message: string, type: 'success' | 'error' | 'info'): void {
     // Đây chỉ là giả lập, trong ứng dụng thực tế bạn sẽ dùng một component toast
@@ -244,5 +291,34 @@ export class ProductAdminComponent implements OnInit {
     
     // Giả lập thông báo cho người dùng
     alert(`${message}`);
+  }
+
+  /**
+ * Lưu kích cỡ mới
+ */
+  saveNewSize(): void {
+  if (this.newSizeName) {
+    // Gửi đối tượng chứa tên kích cỡ đến backend
+    this.sizeService.addSize({ name: this.newSizeName }).subscribe({
+      next: (response: any) => {
+        this.showNotification('Đã thêm kích cỡ mới thành công!', 'success');
+        this.newSizeName = '';
+        this.closeSizePanel();
+      },
+      error: (error) => {
+        console.error('Lỗi khi thêm kích cỡ mới:', error);
+        this.showNotification('Có lỗi xảy ra khi thêm kích cỡ mới.', 'error');
+      }
+    });
+  } else {
+    this.showNotification('Vui lòng nhập tên kích cỡ.', 'error');
+  }
+}
+
+  /**
+   * Đóng panel thêm kích cỡ
+   */
+  closeSizePanel(): void {
+    this.showSizePanel = false;
   }
 }

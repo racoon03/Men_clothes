@@ -10,10 +10,13 @@ import com.project.shopapp.models.Role;
 import com.project.shopapp.models.User;
 import com.project.shopapp.repositories.RoleRepository;
 import com.project.shopapp.repositories.UserRepository;
+import com.project.shopapp.responses.UserResponse;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -163,5 +166,40 @@ public class UserService implements IUserService{
         } else {
             throw new Exception("User not found");
         }
+    }
+
+    @Override
+    public Page<UserResponse> getAllUsers(String keyword, PageRequest pageRequest) {
+        // Tìm kiếm người dùng theo từ khóa (tên, số điện thoại, địa chỉ)
+        Page<User> userPage;
+        if (keyword.isEmpty()) {
+            userPage = userRepository.findAll(pageRequest);
+        } else {
+            userPage = userRepository.searchUsers(keyword, pageRequest);
+        }
+
+        // Chuyển đổi kết quả sang UserResponse
+        return userPage.map(UserResponse::fromUser);
+    }
+
+    @Transactional
+    @Override
+    public User updateUserActiveStatus(Long userId, boolean active) throws DataNotFoundException {
+        // Tìm người dùng theo ID
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException(
+                        "User is not found"));
+
+        // Không cho phép vô hiệu hóa tài khoản ADMIN
+        if (!active && existingUser.getRole().getName().equalsIgnoreCase(Role.ADMIN)) {
+            throw new DataNotFoundException(
+                    "not cancel admin");
+        }
+
+        // Cập nhật trạng thái hoạt động
+        existingUser.setActive(active);
+
+        // Lưu thay đổi vào cơ sở dữ liệu
+        return userRepository.save(existingUser);
     }
 }

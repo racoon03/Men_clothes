@@ -1,0 +1,314 @@
+
+<div class="coupon-admin-container">
+    <!-- Header section with title and actions -->
+    <div class="header">
+        <div class="title-section">
+            <h2>Quản lý mã giảm giá</h2>
+            <p>Quản lý tất cả mã giảm giá trong hệ thống</p>
+        </div>
+
+        <div class="action-buttons">
+            <div class="search-bar">
+                <input type="text" [(ngModel)]="keyword" placeholder="Tìm kiếm mã giảm giá..." class="search-input"
+                    (keyup.enter)="searchCoupons()">
+                <button *ngIf="keyword" class="btn-clear" (click)="clearSearch()" title="Xóa tìm kiếm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <button class="btn-search" (click)="searchCoupons()">
+                <i class="fas fa-search"></i>
+            </button>
+
+            <div class="limit-filter">
+                <select [ngModel]="limit" (ngModelChange)="limit = $event; currentPage = 1; loadCoupons()"
+                    class="limit-select">
+                    <option [ngValue]="5">5 mã giảm giá</option>
+                    <option [ngValue]="8">8 mã giảm giá</option>
+                    <option [ngValue]="15">15 mã giảm giá</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary btn-add-coupon" (click)="toggleAddCouponForm()">
+                <i class="fas fa-plus"></i> Thêm mã giảm giá
+            </button>
+        </div>
+    </div>
+
+    <!-- Form thêm mới coupon (mặc định ẩn) -->
+    <div class="add-coupon-form" *ngIf="showAddForm">
+        <div class="form-header">
+            <h3>Thêm mã giảm giá mới</h3>
+            <button class="btn-close" (click)="toggleAddCouponForm()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form (ngSubmit)="createCoupon()" #couponForm="ngForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="content">Nội dung</label>
+                        <input type="text" id="content" class="form-control" name="content"
+                            [(ngModel)]="newCoupon.content" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="codecp">Mã giảm giá</label>
+                        <input type="text" id="codecp" class="form-control" name="codecp" [(ngModel)]="newCoupon.codeCp"
+                            required>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="discount">Phần trăm giảm giá</label>
+                        <input type="number" id="discount" class="form-control" name="discount"
+                            [(ngModel)]="newCoupon.discount" required min="0" max="100">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="category">Danh mục áp dụng</label>
+                        <select id="category" class="form-control" name="categoryId" [(ngModel)]="newCoupon.category_id"
+                            required>
+                            <option [ngValue]="null" disabled>Chọn danh mục</option>
+                            <option *ngFor="let category of categories" [ngValue]="category.id">
+                                {{category.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="startday">Ngày bắt đầu</label>
+                        <input type="datetime-local" id="startday" class="form-control" name="startday"
+                            [(ngModel)]="newCoupon.startday" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="endday">Ngày kết thúc</label>
+                        <input type="datetime-local" id="endday" class="form-control" name="endday"
+                            [(ngModel)]="newCoupon.endday" required>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions mt-4">
+                <button type="button" class="btn btn-secondary" (click)="toggleAddCouponForm()">Hủy bỏ</button>
+                <button type="submit" class="btn btn-primary" [disabled]="!couponForm.valid || isSubmitting">
+                    <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm mr-1"></span>
+                    Thêm mã giảm giá
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Hiển thị tổng quát -->
+    <div class="coupon-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ coupons.length }}</h3>
+                <p>Mã giảm giá hiển thị</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ getActiveCouponsCount() }}</h3>
+                <p>Mã giảm giá đang hoạt động</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-hourglass-end"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ getExpiredCouponsCount() }}</h3>
+                <p>Mã giảm giá hết hạn</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hiển thị trạng thái tìm kiếm nếu có -->
+    <div class="search-status" *ngIf="keyword">
+        <div>
+            Kết quả tìm kiếm cho: <span class="keyword">"{{ keyword }}"</span>
+            <span *ngIf="coupons.length > 0">({{ coupons.length }} kết quả)</span>
+        </div>
+        <button class="reset-search" (click)="clearSearch()">Xóa tìm kiếm</button>
+    </div>
+
+    <!-- Bảng hiển thị coupon -->
+    <div class="coupon-table-container">
+        <table class="coupon-table table table-striped" *ngIf="coupons.length > 0; else noData">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Mã</th>
+                    <th>Nội dung</th>
+                    <th>Giảm giá</th>
+                    <th>Danh mục</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Ngày kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let coupon of coupons" [ngClass]="{'expired-coupon': isExpired(coupon)}">
+                    <td>{{coupon.id}}</td>
+                    <td><span class="badge bg-primary">{{coupon.codecp}}</span></td>
+                    <td>{{coupon.content}}</td>
+                    <td>{{coupon.discount}}%</td>
+                    <td>{{getCategoryName(coupon.category_id)}}</td>
+                    <td>{{formatDate(coupon.startday)}}</td>
+                    <td>{{formatDate(coupon.endday)}}</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="isExpired(coupon) ? 'expired' : 'active'">
+                            {{isExpired(coupon) ? 'Hết hạn' : 'Đang hoạt động'}}
+                        </span>
+                    </td>
+                    <td class="actions-column">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" (click)="showExtendModal(coupon)"
+                                [disabled]="!isExpired(coupon)" title="Gia hạn">
+                                <i class="fas fa-calendar-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" (click)="showDeleteConfirmModal(coupon)" title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <ng-template #noData>
+            <div class="no-data">
+                <i class="fas fa-tags"></i>
+                <p *ngIf="keyword">Không tìm thấy mã giảm giá nào với từ khóa "{{ keyword }}".</p>
+                <p *ngIf="!keyword">Không tìm thấy mã giảm giá nào trong hệ thống.</p>
+                <button *ngIf="keyword" class="btn btn-primary mt-3" (click)="clearSearch()">Xóa tìm kiếm</button>
+            </div>
+        </ng-template>
+    </div>
+
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true"
+        [ngClass]="{'show': showDeleteModal}" [ngStyle]="{'display': showDeleteModal ? 'block' : 'none'}">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="close" (click)="cancelDelete()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa mã giảm giá <strong>"{{couponToDelete?.codecp}}"</strong>?</p>
+                    <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Hủy bỏ</button>
+                    <button type="button" class="btn btn-danger" (click)="confirmDelete()">Xác nhận xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal gia hạn -->
+    <div class="modal fade" id="extendModal" tabindex="-1" role="dialog" aria-hidden="true"
+        [ngClass]="{'show': showExtendModalFlag}" [ngStyle]="{'display': showExtendModalFlag ? 'block' : 'none'}">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Gia hạn mã giảm giá</h5>
+                    <button type="button" class="close" (click)="cancelExtend()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Mã giảm giá: <strong>{{couponToExtend?.codecp}}</strong></p>
+                    <p>Ngày hết hạn hiện tại: <strong>{{formatDate(couponToExtend?.endday)}}</strong></p>
+
+                    <div class="form-group mt-3">
+                        <label for="newEndDate">Chọn ngày hết hạn mới:</label>
+                        <input type="datetime-local" class="form-control" id="newEndDate" [(ngModel)]="newEndDate"
+                            required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="cancelExtend()">Hủy bỏ</button>
+                    <button type="button" class="btn btn-primary" (click)="confirmExtend()">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm mr-1"></span>
+                        Xác nhận gia hạn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="pagination-wrapper" *ngIf="totalPages > 1">
+        <div class="pagination-info">
+            <span>Trang {{ currentPage }} / {{ totalPages }}</span>
+        </div>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item" [class.disabled]="currentPage <= 1">
+                    <a class="page-link" (click)="goToPage(1)" aria-label="First">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage <= 1">
+                    <a class="page-link" (click)="goToPage(currentPage - 1)" aria-label="Previous">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+
+                <li class="page-item" *ngFor="let page of getPaginationRange()" [class.active]="page === currentPage">
+                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+                </li>
+
+                <li class="page-item" [class.disabled]="currentPage >= totalPages">
+                    <a class="page-link" (click)="goToPage(currentPage + 1)" aria-label="Next">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage >= totalPages">
+                    <a class="page-link" (click)="goToPage(totalPages)" aria-label="Last">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" *ngIf="isLoading">
+        <div class="spinner-border text-primary"></div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200" *ngIf="showToast">
+        <div class="toast show"
+            [ngClass]="{'bg-success text-white': toastType === 'success', 'bg-danger text-white': toastType === 'error'}">
+            <div class="toast-header">
+                <strong class="me-auto">Thông báo</strong>
+                <button type="button" class="btn-close" (click)="hideToast()"></button>
+            </div>
+            <div class="toast-body">
+                {{toastMessage}}
+            </div>
+        </div>
+    </div>
+</div>

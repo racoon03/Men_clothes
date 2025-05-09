@@ -1,0 +1,189 @@
+
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="title-area">
+            <h2>Dashboard</h2>
+            <p>Tổng quan hoạt động của cửa hàng</p>
+        </div>
+        <div class="action-buttons">
+            <div class="date-filter">
+                <div class="date-picker-container">
+                    <div class="date-input">
+                        <label>Từ ngày:</label>
+                        <input type="date" [(ngModel)]="startDate" (change)="onDateChange()" [max]="maxStartDate">
+                    </div>
+                    <div class="date-input">
+                        <label>Đến ngày:</label>
+                        <input type="date" [(ngModel)]="endDate" (change)="onDateChange()" [min]="minEndDate">
+                    </div>
+                    <div class="date-preset">
+                        <button class="btn-outline" (click)="setDateRange('today')">Hôm nay</button>
+                        <button class="btn-outline" (click)="setDateRange('week')">Tuần này</button>
+                        <button class="btn-outline" (click)="setDateRange('month')">Tháng này</button>
+                        <button class="btn-outline" (click)="setDateRange('year')">Năm này</button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-export" (click)="printOrder()">
+                <i class="fas fa-file-excel"></i> In báo cáo
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Overview Card -->
+    <div class="stats-overview">
+        <div class="stat-card revenue">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Tổng doanh thu</h3>
+                <div class="stat-value">{{ profitStats.totalRevenue | number:'1.0-0' }}đ</div>
+                <div class="comparison" [ngClass]="{'positive': isPositiveRevenue, 'negative': !isPositiveRevenue}">
+                    <i class="fas" [ngClass]="isPositiveRevenue ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                    <span>{{ revenueChange }}% so với kỳ trước</span>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card expense">
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Tổng chi phí</h3>
+                <div class="stat-value">{{ profitStats.totalCost | number:'1.0-0' }}đ</div>
+                <div class="comparison" [ngClass]="{'positive': !isPositiveCost, 'negative': isPositiveCost}">
+                    <i class="fas" [ngClass]="isPositiveCost ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                    <span>{{ costChange }}% so với kỳ trước</span>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card profit">
+            <div class="stat-icon">
+                <i class="fas fa-sack-dollar"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Lợi nhuận</h3>
+                <div class="stat-value">{{ profitStats.profit | number:'1.0-0' }}đ</div>
+                <div class="comparison" [ngClass]="{'positive': isPositiveProfit, 'negative': !isPositiveProfit}">
+                    <i class="fas" [ngClass]="isPositiveProfit ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                    <span>{{ profitChange }}% so với kỳ trước</span>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card profit-margin">
+            <div class="stat-icon">
+                <i class="fas fa-percent"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Tỷ suất lợi nhuận</h3>
+                <div class="stat-value">{{ profitMargin | percent:'1.1-1' }}</div>
+                <div class="comparison" [ngClass]="{'positive': isPositiveMargin, 'negative': !isPositiveMargin}">
+                    <i class="fas" [ngClass]="isPositiveMargin ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                    <span>{{ marginChange }} điểm % so với kỳ trước</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <!-- Profit Trend Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Xu hướng lợi nhuận</h3>
+                <div class="chart-actions">
+                    <div class="period-selector">
+                        <button *ngFor="let period of timeUnitOptions"
+                            [class.active]="selectedTimeUnit === period.value" (click)="changeTimeUnit(period.value)">
+                            {{ period.label }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="profitTrendChart"></canvas>
+                <div *ngIf="isLoading" class="loading-overlay">
+                    <div class="spinner"></div>
+                    <p>Đang tải dữ liệu...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue vs Expense Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Doanh thu - Chi phí</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="revenueExpenseChart"></canvas>
+                <div *ngIf="isLoading" class="loading-overlay">
+                    <div class="spinner"></div>
+                    <p>Đang tải dữ liệu...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Section -->
+    <div class="table-section">
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Chi tiết dữ liệu theo {{ getTimeUnitLabel() }}</h3>
+            </div>
+            <div class="table-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>{{ getTimeUnitLabel() }}</th>
+                            <th>Doanh thu</th>
+                            <th>Chi phí</th>
+                            <th>Lợi nhuận</th>
+                            <th>Tỷ suất</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of profitData">
+                            <td>{{ formatPeriodLabel(item.period) }}</td>
+                            <td class="right-align">{{ item.revenue | number:'1.0-0' }}đ</td>
+                            <td class="right-align">{{ item.cost | number:'1.0-0' }}đ</td>
+                            <td [ngClass]="{'positive-value': item.profit > 0, 'negative-value': item.profit < 0}"
+                                class="right-align">
+                                {{ item.profit | number:'1.0-0' }}đ
+                            </td>
+                            <td [ngClass]="{'positive-value': item.profit > 0, 'negative-value': item.profit < 0}"
+                                class="right-align">
+                                {{ item.revenue > 0 ? (item.profit / item.revenue) : 0 | percent:'1.1-1' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Tổng cộng</th>
+                            <th class="right-align">{{ profitStats.totalRevenue | number:'1.0-0' }}đ
+                            </th>
+                            <th class="right-align">{{ profitStats.totalCost | number:'1.0-0' }}đ</th>
+                            <th [ngClass]="{'positive-value': profitStats.profit > 0, 'negative-value': profitStats.profit < 0}"
+                                class="right-align">
+                                {{ profitStats.profit | number:'1.0-0' }}đ
+                            </th>
+                            <th [ngClass]="{'positive-value': profitStats.profit > 0, 'negative-value': profitStats.profit < 0}"
+                                class="right-align">
+                                {{ profitMargin | percent:'1.1-1' }}
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div *ngIf="isLoading" class="loading-overlay">
+                    <div class="spinner"></div>
+                    <p>Đang tải dữ liệu...</p>
+                </div>
+                <div *ngIf="!isLoading && profitData.length === 0" class="no-data">
+                    <i class="fas fa-chart-bar"></i>
+                    <p>Không có dữ liệu trong khoảng thời gian này</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

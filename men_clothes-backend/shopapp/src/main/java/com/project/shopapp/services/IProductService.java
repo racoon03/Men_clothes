@@ -24,4 +24,6 @@ public interface IProductService {
             ProductImageDTO productImageDTO) throws Exception;
     List<Product> findProductsByIds(List<Long> productIds);
     public DetailProductResponse getDetailProduct(Long productId);
+
+    Product updateProductThumbnail(Long productId, String thumbnailUrl) throws Exception;
 }

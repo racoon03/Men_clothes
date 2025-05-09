@@ -174,7 +174,7 @@ private mapOrderDetail(rawOrderDetail: any): OrderDetail {
       case 'processing':
         return 'Đang xử lý';
       case 'shipped':
-        return 'Đang giao hàng';
+        return 'Đang vận chuyển';
       case 'delivered':
         return 'Đã giao hàng';
       case 'cancelled':

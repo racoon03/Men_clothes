@@ -37,22 +37,9 @@
             <p class="text-muted">Quản lý chi tiết và thuộc tính sản phẩm</p>
         </div>
         <div class="action-buttons">
-            <!-- <ng-container ngbPopover="Quản lý thuộc tính" popoverTitle="Tùy chọn sản phẩm" triggers="manual"
-                [placement]="'bottom'" #p="ngbPopover">
-                <button class="btn btn-outline-primary me-2" (click)="p.toggle()">
-                    <i class="fas fa-cog me-1"></i> Tùy chỉnh
-                </button>
-
-                
-                <ng-template #popoverContent>
-                    <div class="popover-list">
-                        <a class="popover-item" (click)="handleOptionClick(0); p.close()">Quản lý màu sắc</a>
-                        <a class="popover-item" (click)="handleOptionClick(1); p.close()">Quản lý kích cỡ</a>
-                        <a class="popover-item" (click)="handleOptionClick(2); p.close()">Quản lý biến thể</a>
-                    </div>
-                </ng-template>
-            </ng-container> -->
-
+            <button (click)="reloadPage()" class="btn btn-info me-2">
+                <i class="fas fa-sync-alt me-1"></i> Tải lại
+            </button>
             <button *ngIf="canAddImage()" (click)="openFileSelector()" class="btn btn-success">
                 <i class="fas fa-image me-1"></i> Thêm ảnh
             </button>
@@ -145,14 +132,13 @@
                                 <tbody>
                                     <tr *ngFor="let variant of productVariants">
                                         <td>
-                                            <div class="color-badge"
-                                                [ngClass]="{'color-white': getColorName(variant) === 'Trắng'}"
-                                                [ngStyle]="{'background-color': getColorCode(getColorName(variant))}">
+                                            <div class="color-badge" [ngClass]="{'color-white': getColorName(variant) === 'Trắng'}"
+                                                [ngStyle]="{'background-color': getColorCodeByVariant(variant)}">
                                                 {{ getColorName(variant) }}
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="color-circle" [ngStyle]="{'background-color': getColorCode(getColorName(variant))}"
+                                            <div class="color-circle" [ngStyle]="{'background-color': getColorCodeByVariant(variant)}"
                                                 [ngClass]="{'white-color': getColorName(variant) === 'Trắng'}">
                                             </div>
                                         </td>
@@ -280,17 +266,34 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Số lượng nhập thêm</label>
+                                <label class="form-label">Số lượng nhập thêm <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" [(ngModel)]="importQuantity" min="1">
                             </div>
                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Giá nhập <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" [(ngModel)]="importPrice" min="0"
+                                    placeholder="Giá nhập hàng...">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nhà cung cấp</label>
+                                <input type="text" class="form-control" [(ngModel)]="importSupplier"
+                                    placeholder="Nhập tên nhà cung cấp...">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày nhập</label>
+                                <input type="date" class="form-control" [(ngModel)]="importDate" [value]="formatDate(importDate)">
+                            </div>
+                            <div class="col-md-12 mb-3">
                                 <label class="form-label">Ghi chú (tùy chọn)</label>
-                                <input type="text" class="form-control" [(ngModel)]="importNote" placeholder="Nhập ghi chú...">
+                                <textarea class="form-control" [(ngModel)]="importNote" placeholder="Nhập ghi chú..."
+                                    rows="2"></textarea>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-primary w-100" (click)="importStock()">Xác nhận nhập hàng</button>
+                        <button class="btn btn-primary w-100" (click)="importStock()" [disabled]="!isImportDataValid()">
+                            <i class="fas fa-save me-1"></i> Xác nhận nhập hàng
+                        </button>
                     </div>
                 </div>
             </div>

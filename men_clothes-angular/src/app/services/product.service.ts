@@ -65,8 +65,17 @@ export class ProductService {
     return this.http.post(url, formData, {
       headers: new HttpHeaders({
         'Authorization': `Bearer ${token}`
-        // Không cần 'Content-Type' vì FormData sẽ tự thiết lập
+        })
+    });
+  }
+
+  updateProductThumbnail(productId: number, thumbnailUrl: string, token: string): Observable<any> {
+    const url = `${environment.apiBaseUrl}/products/${productId}/thumbnail`;
+    return this.http.put(url, { thumbnail: thumbnailUrl }, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       })
-  });
-}
+    });
+  }
 }

@@ -1,79 +1,198 @@
 <form [formGroup]="createProductForm" class="d-flex flex-column">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <h2 class="product-header text-center">Thêm sản phẩm mới</h2>
-
-            <!-- Tên sản phẩm -->
-            <div class="mb-3">
-                <label for="name" class="form-label">Tên sản phẩm</label>
-                <input type="text" formControlName="name" class="form-control" id="name"
-                    [class.is-invalid]="createProductForm.get('name')?.invalid && createProductForm.get('name')?.touched">
-                <div *ngIf="createProductForm.get('name')?.invalid && createProductForm.get('name')?.touched"
-                    class="invalid-feedback">
-                    Tên sản phẩm là trường bắt buộc.
-                </div>
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0 py-2 text-center">Thêm sản phẩm mới</h3>
             </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <!-- Thông tin cơ bản -->
+                    <div class="col-md-7">
+                        <div class="card mb-4 border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Thông tin cơ bản
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Tên sản phẩm -->
+                                <div class="mb-3">
+                                    <label for="name" class="form-label fw-bold">Tên sản phẩm <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" formControlName="name" class="form-control" id="name"
+                                        [class.is-invalid]="createProductForm.get('name')?.invalid && createProductForm.get('name')?.touched">
+                                    <div *ngIf="createProductForm.get('name')?.invalid && createProductForm.get('name')?.touched"
+                                        class="invalid-feedback">
+                                        Tên sản phẩm là trường bắt buộc và phải có ít nhất 3 ký tự.
+                                    </div>
+                                </div>
 
-            <!-- Giá sản phẩm -->
-            <div class="mb-3">
-                <label for="price" class="form-label">Giá</label>
-                <input type="number" formControlName="price" class="form-control" id="price"
-                    [class.is-invalid]="createProductForm.get('price')?.invalid && createProductForm.get('price')?.touched">
-            </div>
+                                <!-- Giá và Danh mục -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <!-- Giá sản phẩm -->
+                                        <div class="mb-3">
+                                            <label for="price" class="form-label fw-bold">Giá <span
+                                                    class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="number" formControlName="price" class="form-control"
+                                                    id="price"
+                                                    [class.is-invalid]="createProductForm.get('price')?.invalid && createProductForm.get('price')?.touched">
+                                                <span class="input-group-text">VNĐ</span>
+                                            </div>
+                                            <div *ngIf="createProductForm.get('price')?.invalid && createProductForm.get('price')?.touched"
+                                                class="text-danger small mt-1">
+                                                Giá không được âm.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <!-- Loại sản phẩm -->
+                                        <div class="mb-3">
+                                            <label for="categories" class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="categories" formControlName="categories"
+                                                [class.is-invalid]="createProductForm.get('categories')?.invalid && createProductForm.get('categories')?.touched">
+                                                <option value="" disabled selected>Chọn danh mục</option>
+                                                <option *ngFor="let category of categories" [value]="category.id">{{category.name}}</option>
+                                            </select>
+                                            <div *ngIf="createProductForm.get('categories')?.invalid && createProductForm.get('categories')?.touched"
+                                                class="invalid-feedback">
+                                                Vui lòng chọn danh mục.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-            <!-- Mô tả -->
-            <div class="mb-3">
-                <label for="description" class="form-label">Mô tả</label>
-                <input type="text" class="form-control" formControlName="description" required id="description">
-            </div>
+                                <!-- Mô tả -->
+                                <div class="mb-3">
+                                    <label for="description" class="form-label fw-bold">Mô tả sản phẩm</label>
+                                    <textarea class="form-control" formControlName="description" id="description"
+                                        rows="4" placeholder="Nhập mô tả chi tiết về sản phẩm..."></textarea>
+                                </div>
 
-            <!-- Mô tả -->
-            <div class="mb-3">
-                <label for="image" class="form-label">Chọn ảnh</label>
-                <input type="file" class="form-control" (change)="onFileChange($event)" required id="image"  multiple accept="image/*">
-            </div>
+                                <!-- Upload ảnh -->
+                                <div class="mb-3">
+                                    <label for="image" class="form-label fw-bold">Hình ảnh sản phẩm <span
+                                            class="text-danger">*</span></label>
+                                    <div class="custom-file-upload">
+                                        <input type="file" class="form-control" (change)="onFileChange($event)"
+                                            id="image" multiple accept="image/*">
+                                        <div class="mt-2 small text-muted">
+                                            <i class="fas fa-info-circle me-1"></i> Tối đa 5 ảnh, mỗi ảnh không quá 5MB.
+                                            Định dạng: JPG, PNG, JPEG.
+                                        </div>
+                                    </div>
+                                    <!-- Hiển thị xem trước ảnh -->
+                                    <div *ngIf="selectedFiles && selectedFiles.length > 0"
+                                        class="image-preview-container mt-3">
+                                        <div class="d-flex flex-wrap">
+                                            <div *ngFor="let file of previewUrls; let i = index" class="preview-item">
+                                                <img [src]="file" class="preview-image">
+                                                <span class="remove-image" (click)="removeImage(i)">
+                                                    <i class="fas fa-times"></i>
+                                                </span>
+                                                <span *ngIf="i === 0" class="main-image-badge">Ảnh chính</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Nhóm Loại, Màu sắc, Kích cỡ trong cùng một hàng -->
-            <div class="row">
-                <!-- Loại -->
-                <div class="col-md-3">
-                    <label for="category" class="form-label">Loại</label>
-                    <ng-select [items]="categories" bindLabel="name" bindValue="id" 
-                        formControlName="categories" appendTo="body">
-                    </ng-select>
+                    <!-- Phân biến thể sản phẩm -->
+                    <div class="col-md-5">
+                        <div class="card mb-4 border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-tags me-2"></i>Biến thể sản phẩm
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Màu sắc -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="color" class="form-label fw-bold">Màu sắc</label>
+                                        <select class="form-select" id="color" formControlName="color">
+                                            <option value="" disabled selected>Chọn màu</option>
+                                            <option *ngFor="let color of colors" [value]="color.id">{{color.name}}</option>
+                                        </select>
+                                    </div>
+                                
+                                    <!-- Kích cỡ -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="size" class="form-label fw-bold">Kích cỡ</label>
+                                        <select class="form-select" id="size" formControlName="size">
+                                            <option value="" disabled selected>Chọn size</option>
+                                            <option *ngFor="let size of sizes" [value]="size.id">{{size.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Số lượng và Nút thêm -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="quantity" class="form-label fw-bold">Số lượng</label>
+                                        <input type="number" formControlName="quantity" class="form-control"
+                                            id="quantity" min="1">
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-center">
+                                        <button type="button" (click)="addVariant()" class="btn btn-primary w-100 mt-1">
+                                            <i class="fas fa-plus me-1"></i> Thêm biến thể
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Hiển thị các biến thể đã thêm -->
+                                <div class="variants-list mt-3">
+                                    <h6 class="border-bottom pb-2 mb-3">Biến thể đã thêm</h6>
+                                    <div *ngIf="selectedVariants.length === 0" class="text-center text-muted py-3">
+                                        <i class="fas fa-info-circle me-1"></i> Chưa có biến thể nào được thêm
+                                    </div>
+                                    <div *ngIf="selectedVariants.length > 0" class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Màu sắc</th>
+                                                    <th>Kích cỡ</th>
+                                                    <th>Số lượng</th>
+                                                    <th class="text-center">Thao tác</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let variant of selectedVariants; let i = index">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="color-dot"
+                                                                [ngStyle]="{'background-color': getColorCode(variant.colorId)}"></span>
+                                                            {{ getColorName(variant.colorId) }}
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ getSizeName(variant.sizeId) }}</td>
+                                                    <td>{{ variant.quantity }}</td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                            (click)="removeVariant(i)">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Màu sắc -->
-                <div class="col-md-2">
-                    <label for="color" class="form-label">Màu sắc</label>
-                    <ng-select [items]="colors" bindLabel="name" bindValue="id" [multiple]="true"
-                        formControlName="color" appendTo="body">
-                    </ng-select>
-                </div>
-
-                <!-- Kích cỡ -->
-                <div class="col-md-2">
-                    <label for="size" class="form-label">Kích cỡ</label>
-                    <ng-select [items]="sizes" bindLabel="name" bindValue="id" [multiple]="true" formControlName="size"
-                        appendTo="body">
-                    </ng-select>
-                </div>
-
-                <!-- so luong -->
-                <div class="col-md-2">
-                    <label for="quantity" class="form-label">Số lượng</label>
-                    <input type="number" formControlName="quantity" class="form-control" id="quantity">
-                </div>
-                <!-- Nút thêm -->
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="button" (click)="addVariant()" class="btn btn-success w-100">Thêm</button>
+                <!-- Nút lưu -->
+                <div class="text-center mt-4">
+                    <button type="button" (click)="save()" class="btn btn-success btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>Lưu sản phẩm
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
 </form>
-<!-- Nút lưu ở giữa -->
-<div class="text-center mt-4">
-    <button type="button" (click)="save()" class="btn btn-primary mt-auto">Lưu</button>
-</div>

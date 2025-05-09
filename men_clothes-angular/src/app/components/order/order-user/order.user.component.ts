@@ -229,9 +229,11 @@ export class OrderUserComponent implements OnInit {
     return date.toLocaleDateString('vi-VN');
   }
 
-  // Trong OrderUserComponent
+  
   cancelOrder(orderId: number): void {
-    if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
+   
+      this.isLoading = true; 
+      
       this.orderService.cancelOrder(orderId)
         .subscribe({
           next: (response) => {
@@ -240,13 +242,34 @@ export class OrderUserComponent implements OnInit {
             if (orderIndex !== -1) {
               this.orders[orderIndex].status = 'CANCELLED';
             }
+            
+            this.isLoading = false;
             alert('Đơn hàng đã được hủy thành công');
           },
           error: (error: HttpErrorResponse) => {
+            this.isLoading = false;
             console.error('Lỗi khi hủy đơn hàng:', error);
-            alert('Không thể hủy đơn hàng. Vui lòng thử lại sau.');
+            
+            // Hiển thị thông báo lỗi cụ thể nếu có
+            if (error.error && typeof error.error === 'string') {
+              alert(`Không thể hủy đơn hàng: ${error.error}`);
+            } else {
+              alert('Không thể hủy đơn hàng. Vui lòng thử lại sau.');
+            }
           }
         });
+    
+  }
+
+  confirmCancelOrder(orderId: number): void {
+    // Tạo confirm dialog với thông tin chi tiết hơn
+    const confirmDialog = confirm(
+      'Bạn có chắc chắn muốn hủy đơn hàng này không?\n\n' +
+      'Lưu ý: Sau khi hủy, đơn hàng không thể khôi phục lại trạng thái trước đó.'
+    );
+    
+    if (confirmDialog) {
+      this.cancelOrder(orderId);
     }
   }
 }
